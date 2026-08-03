@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון תזונה ומעקב התקדמות</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), 
+                        url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 0;
+            direction: rtl;
+        }
+        .container, .history-card, .chart-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(8px);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 380px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        h2, h3 { color: #222; margin-bottom: 15px; }
+        .input-group { margin-bottom: 12px; text-align: right; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; color: #444; font-size: 13px; }
+        input, select {
+            width: 100%; padding: 8px; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 8px; text-align: right; font-size: 14px;
+            background: #fff;
+        }
+        .optional-badge { font-weight: normal; color: #777; font-size: 11px; }
+        button {
+            width: 100%; padding: 12px; background-color: #28a745;
+            color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #218838; }
+        .export-btn {
+            background-color: #007bff;
+            margin-top: 15px;
+        }
+        .export-btn:hover { background-color: #0056b3; }
+        .results {
+            margin-top: 20px; padding: 15px; background: #f0f4f8;
+            border-radius: 8px; display: none; text-align: right;
+        }
+        .macro-list { list-style: none; padding: 0; margin: 10px 0 0 0; }
+        .macro-list li { padding: 6px 0; border-bottom: 1px solid #e0e0e0; }
+        .macro-list li:last-child { border-bottom: none; }
+        .meal-suggestion {
+            margin-top: 15px; padding: 10px; background: #d4edda;
+            color: #155724; border-radius: 8px; font-size: 13px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        th { background-color: #f2f2f2; color: #333; }
+        .delete-btn { color: #dc3545; cursor: pointer; font-weight: bold; border: none; background: none; font-size: 14px; }
+        .error-msg { color: #dc3545; font-size: 13px; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>מחשבון תזונה מתקדם</h2>
+    <div class="input-group">
+        <label>משקל (ק"ג):</label>
+        <input type="number" id="weight" placeholder="למשל: 80">
+    </div>
+    <div class="input-group">
+        <label>גובה (ס"מ):</label>
+        <input type="number" id="height" placeholder="למשל: 180">
+    </div>
+    <div class="input-group">
+        <label>היקף מותניים (ס"מ): <span class="optional-badge">(רשות - לחישוב % שומן)</span></label>
+        <input type="number" id="waist" placeholder="למשל: 85">
+    </div>
+    <div class="input-group">
+        <label>היקף צוואר (ס"מ): <span class="optional-badge">(רשות - לחישוב % שומן)</span></label>
+        <input type="number" id="neck" placeholder="למשל: 38">
+    </div>
+    <div class="input-group">
+        <label>יעד תזונתי:</label>
+        <select id="goal">
+            <option value="muscle">בניית מסת שריר</option>
+            <option value="fat_loss">חיטוב (ירידה באחוז שומן)</option>
+            <option value="maintenance">שמירה על המשקל</option>
+        </select>
+    </div>
+    <button onclick="calculate()">חשב תפריט</button>
+    <div id="errorBox" class="error-msg"></div>
+
+    <div class="results" id="resultsBox">
+        <h3>תוצאות מומלצות:</h3>
+        <p id="fatBox" style="display:none; color:#0056b3;">אחוז שומן מוערך: <strong id="bodyFatRes"></strong>%</p>
+        <p>קלוריות יומיות: <strong id="caloriesRes"></strong> קק"ל</p>
+        <ul class="macro-list">
+            <li>חלבון יומי: <strong id="proteinRes"></strong> גרם</li>
+            <li>פחמימות יומיות: <strong id="carbsRes"></strong> גרם</li>
+            <li>שומנים יומיים: <strong id="fatsRes"></strong> גרם</li>
+        </ul>
+        <div class="meal-suggestion" id="mealSuggestion"></div>
+    </div>
+</div>
+
+<div class="chart-card">
+    <h3>מגמת משקל וקלוריות</h3>
+    <canvas id="progressChart"></canvas>
+</div>
+
+<div class="history-card">
+    <h3>היסטוריית חישובים</h3>
+    <div class="input-group">
+        <label>סינון לפי יעד:</label>
+        <select id="filterGoal" onchange="loadHistory()">
+            <option value="all">הצג הכל</option>
+            <option value="muscle">בניית מסת שריר</option>
+            <option value="fat_loss">חיטוב</option>
+            <option value="maintenance">שמירה על המשקל</option>
+        </select>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>משקל</th>
+                <th>% שומן</th>
+                <th>קלוריות</th>
+                <th>חלבון</th>
+                <th>מחק</th>
+            </tr>
+        </thead>
+        <tbody id="historyTable"></tbody>
+    </table>
+    <button class="export-btn" onclick="exportToCSV()">📥 הורד היסטוריה (CSV)</button>
+</div>
+
+<script>
+    let progressChart = null;
+    let currentHistoryData = [];
+
+    function renderChart(data) {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const labels = data.map((item, index) => `#${index + 1}`);
+        const weights = data.map(item => item.weight);
+        const calories = data.map(item => item.calories);
+
+        if (progressChart) progressChart.destroy();
+
+        progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'משקל (ק"ג)',
+                        data: weights,
+                        borderColor: '#28a745',
+                        yAxisID: 'yWeight',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'קלוריות',
+                        data: calories,
+                        borderColor: '#007bff',
+                        yAxisID: 'yCalories',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    yWeight: { type: 'linear', position: 'left', title: { display: true, text: 'ק"ג' } },
+                    yCalories: { type: 'linear', position: 'right', title: { display: true, text: 'קק"ל' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    }
+
+    async function loadHistory() {
+        const goalFilter = document.getElementById('filterGoal').value;
+        const response = await fetch(`/api/history?goal=${goalFilter}`);
+        const rows = await response.json();
+        currentHistoryData = rows;
+        
+        const tbody = document.getElementById('historyTable');
+        tbody.innerHTML = '';
+        rows.forEach(r => {
+            tbody.innerHTML += `<tr>
+                <td>${r.weight} ק"ג</td>
+                <td>${r.body_fat ? r.body_fat + '%' : '-'}</td>
+                <td>${r.calories}</td>
+                <td>${r.protein}ג'</td>
+                <td><button class="delete-btn" onclick="deleteItem(${r.id})">✖</button></td>
+            </tr>`;
+        });
+
+        renderChart(rows);
+    }
+
+    async function deleteItem(id) {
+        await fetch(`/api/history/${id}`, { method: 'DELETE' });
+        loadHistory();
+    }
+
+    async function calculate() {
+        const weight = document.getElementById('weight').value;
+        const height = document.getElementById('height').value;
+        const waist = document.getElementById('waist').value;
+        const neck = document.getElementById('neck').value;
+        const goal = document.getElementById('goal').value;
+        const errorBox = document.getElementById('errorBox');
+        errorBox.style.display = 'none';
+
+        const payload = { 
+            weight: Number(weight), 
+            height: Number(height),
+            goal: goal
+        };
+
+        if (waist) payload.waist = Number(waist);
+        if (neck) payload.neck = Number(neck);
+
+        const response = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            errorBox.innerText = `שגיאה: ${data.error}`;
+            errorBox.style.display = 'block';
+            return;
+        }
+
+        if (data.bodyFatPercentage) {
+            document.getElementById('bodyFatRes').innerText = data.bodyFatPercentage;
+            document.getElementById('fatBox').style.display = 'block';
+        } else {
+            document.getElementById('fatBox').style.display = 'none';
+        }
+
+        document.getElementById('caloriesRes').innerText = data.recommendedCalories;
+        document.getElementById('proteinRes').innerText = data.dailyProteinGrams;
+        document.getElementById('carbsRes').innerText = data.dailyCarbGrams;
+        document.getElementById('fatsRes').innerText = data.dailyFatGrams;
+
+        const proteinPerMeal = Math.round(data.dailyProteinGrams / 4);
+        document.getElementById('mealSuggestion').innerText = `💡 מומלץ לחלק ל-4 ארוחות ביום: כ-${proteinPerMeal} גרם חלבון בכל ארוחה.`;
+
+        document.getElementById('resultsBox').style.display = 'block';
+        loadHistory();
+    }
+
+    function exportToCSV() {
+    if (!currentHistoryData.length) {
+        alert('אין נתונים לייצוא');
+        return;
+    }
+
+    let csvContent = "\uFEFF"; // BOM לתמיכה מלאה בעברית ב-Excel
+    csvContent += "מזהה,משקל (ק\"ג),גובה (ס\"מ),היקף מותניים (ס\"מ),היקף צוואר (ס\"מ),אחוז שומן (%),יעד,קלוריות,חלבון (גרם),פחמימות (גרם),שומנים (גרם),תאריך\n";
+
+    currentHistoryData.forEach(r => {
+        // פורמט תאריך קצר וקריא: YYYY-MM-DD HH:MM
+        const formattedDate = r.created_at ? r.created_at.replace('T', ' ').slice(0, 16) : '';
+        
+        let goalText = r.goal;
+        if (r.goal === 'muscle') goalText = 'בניית מסת שריר';
+        else if (r.goal === 'fat_loss') goalText = 'חיטוב';
+        else if (r.goal === 'maintenance') goalText = 'שמירה';
+
+        csvContent += `${r.id},${r.weight},${r.height},${r.waist || ''},${r.neck || ''},${r.body_fat || ''},${goalText},${r.calories},${r.protein},${r.carbs || ''},${r.fats || ''},${formattedDate}\n`;
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nutrition_history_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+    loadHistory();
+</script>
+
+</body>
+</html>
