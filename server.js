@@ -3,7 +3,8 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const Joi = require('joi');
 const app = express();
-const PORT = 3000;
+
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -116,6 +117,7 @@ app.get('/api/history', (req, res) => {
         res.json(rows);
     });
 });
+
 app.delete('/api/history/:id', (req, res) => {
     const id = req.params.id;
     db.run(`DELETE FROM calculations WHERE id = ?`, [id], function (err) {
@@ -124,11 +126,8 @@ app.delete('/api/history/:id', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-}
 
 module.exports = app;
