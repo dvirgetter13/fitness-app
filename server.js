@@ -1,32 +1,53 @@
 const express = require('express');
 const path = require('path');
-const Database = require('better-sqlite3');
+const fs = require('fs');
+const initSqlJs = require('sql.js');
 const Joi = require('joi');
-const app = express();
 
+const app = express();
 const PORT = process.env.PORT || 3000;
+const DB_FILE = path.join(__dirname, 'history.db');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// חיבור למסד הנתונים
-const db = new Database('./history.db');
+let db;
 
-// יצירת הטבלה
-db.exec(`CREATE TABLE IF NOT EXISTS calculations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    weight REAL,
-    height REAL,
-    waist REAL,
-    neck REAL,
-    body_fat REAL,
-    goal TEXT,
-    calories INTEGER,
-    protein INTEGER,
-    carbs INTEGER,
-    fats INTEGER,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)`);
+// אתחול מסד הנתונים sql.js
+initSqlJs().then((SQL) => {
+    if (fs.existsSync(DB_FILE)) {
+        const filebuffer = fs.readFileSync(DB_FILE);
+        db = new SQL.Database(filebuffer);
+    } else {
+        db = new SQL.Database();
+    }
+
+    db.run(`CREATE TABLE IF NOT EXISTS calculations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        weight REAL,
+        height REAL,
+        waist REAL,
+        neck REAL,
+        body_fat REAL,
+        goal TEXT,
+        calories INTEGER,
+        protein INTEGER,
+        carbs INTEGER,
+        fats INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+    saveDatabase();
+    console.log('Database initialized successfully.');
+}).catch(err => {
+    console.error('Failed to initialize database:', err);
+});
+
+function saveDatabase() {
+    if (!db) return;
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(DB_FILE, buffer);
+}
 
 const calculationSchema = Joi.object({
     weight: Joi.number().min(30).max(300).required(),
@@ -37,6 +58,8 @@ const calculationSchema = Joi.object({
 });
 
 app.post('/api/calculate', (req, res) => {
+    if (!db) return res.status(500).json({ error: 'Database not ready' });
+
     const { error, value } = calculationSchema.validate(req.body);
     if (error) {
         return res.status(400).json({ error: error.details[0].message });
@@ -75,11 +98,21 @@ app.post('/api/calculate', (req, res) => {
     const carbGrams = Math.round(carbCalories / 4);
 
     try {
-        const stmt = db.prepare(`INSERT INTO calculations (weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-        const info = stmt.run(weight, height, waist || null, neck || null, bodyFatPercentage, goal, recommendedCalories, proteinGrams, carbGrams, fatGrams);
+        db.run(
+            `INSERT INTO calculations (weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [weight, height, waist || null, neck || null, bodyFatPercentage, goal, recommendedCalories, proteinGrams, carbGrams, fatGrams]
+        );
+        saveDatabase();
+
+        const resStmt = db.prepare(`SELECT last_insert_rowid() as id`);
+        let newId = null;
+        if (resStmt.step()) {
+            newId = resStmt.getAsObject().id;
+        }
+        resStmt.free();
 
         res.json({
-            id: info.lastInsertRowid,
+            id: newId,
             weight,
             height,
             waist,
@@ -97,6 +130,8 @@ app.post('/api/calculate', (req, res) => {
 });
 
 app.get('/api/history', (req, res) => {
+    if (!db) return res.status(500).json({ error: 'Database not ready' });
+
     try {
         const { goal } = req.query;
         let query = `SELECT id, weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats, strftime('%Y-%m-%d %H:%M', created_at) as created_at FROM calculations `;
@@ -109,7 +144,15 @@ app.get('/api/history', (req, res) => {
 
         query += `ORDER BY id DESC LIMIT 15`;
 
-        const rows = db.prepare(query).all(...params);
+        const stmt = db.prepare(query);
+        stmt.bind(params);
+
+        const rows = [];
+        while (stmt.step()) {
+            rows.push(stmt.getAsObject());
+        }
+        stmt.free();
+
         res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -117,9 +160,12 @@ app.get('/api/history', (req, res) => {
 });
 
 app.delete('/api/history/:id', (req, res) => {
+    if (!db) return res.status(500).json({ error: 'Database not ready' });
+
     try {
         const id = req.params.id;
-        db.prepare(`DELETE FROM calculations WHERE id = ?`).run(id);
+        db.run(`DELETE FROM calculations WHERE id = ?`, [id]);
+        saveDatabase();
         res.json({ message: 'Deleted successfully' });
     } catch (err) {
         res.status(500).json({ error: err.message });
