@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const Joi = require('joi');
 const app = express();
 
@@ -9,12 +9,11 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const db = new sqlite3.Database('./history.db', (err) => {
-    if (err) console.error('Error opening database', err);
-    else console.log('Connected to SQLite database.');
-});
+// חיבור למסד הנתונים
+const db = new Database('./history.db');
 
-db.run(`CREATE TABLE IF NOT EXISTS calculations (
+// יצירת הטבלה
+db.exec(`CREATE TABLE IF NOT EXISTS calculations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     weight REAL,
     height REAL,
@@ -45,16 +44,14 @@ app.post('/api/calculate', (req, res) => {
 
     const { weight, height, waist, neck, goal } = value;
 
-    // חישוב אחוז שומן מוערך (נוסחת הצי האמריקאי לגברים) אם הוגדרו היקפים
     let bodyFatPercentage = null;
     if (waist && neck && waist > neck) {
         bodyFatPercentage = Math.round(
             (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76) * 10
         ) / 10;
-        if (bodyFatPercentage < 3) bodyFatPercentage = 3; // מינימום פיזיולוגי
+        if (bodyFatPercentage < 3) bodyFatPercentage = 3;
     }
 
-    // חישוב קלוריות בסיסי (Mifflin-St Jeor)
     const baseCalories = Math.round((10 * weight + 6.25 * height - 5 * 25 + 5) * 1.2);
     let recommendedCalories = baseCalories;
     let proteinMultiplier = 2.0;
@@ -77,53 +74,56 @@ app.post('/api/calculate', (req, res) => {
     const carbCalories = Math.max(0, recommendedCalories - (proteinCalories + fatCalories));
     const carbGrams = Math.round(carbCalories / 4);
 
-    db.run(
-        `INSERT INTO calculations (weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [weight, height, waist || null, neck || null, bodyFatPercentage, goal, recommendedCalories, proteinGrams, carbGrams, fatGrams],
-        function (err) {
-            if (err) return res.status(500).json({ error: err.message });
+    try {
+        const stmt = db.prepare(`INSERT INTO calculations (weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+        const info = stmt.run(weight, height, waist || null, neck || null, bodyFatPercentage, goal, recommendedCalories, proteinGrams, carbGrams, fatGrams);
 
-            res.json({
-                id: this.lastID,
-                weight,
-                height,
-                waist,
-                neck,
-                bodyFatPercentage,
-                goal,
-                dailyProteinGrams: proteinGrams,
-                dailyFatGrams: fatGrams,
-                dailyCarbGrams: carbGrams,
-                recommendedCalories
-            });
-        }
-    );
+        res.json({
+            id: info.lastInsertRowid,
+            weight,
+            height,
+            waist,
+            neck,
+            bodyFatPercentage,
+            goal,
+            dailyProteinGrams: proteinGrams,
+            dailyFatGrams: fatGrams,
+            dailyCarbGrams: carbGrams,
+            recommendedCalories
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get('/api/history', (req, res) => {
-    const { goal } = req.query;
-    let query = `SELECT id, weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats, strftime('%Y-%m-%d %H:%M', created_at) as created_at FROM calculations `;
-    let params = [];
+    try {
+        const { goal } = req.query;
+        let query = `SELECT id, weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats, strftime('%Y-%m-%d %H:%M', created_at) as created_at FROM calculations `;
+        let params = [];
 
-    if (goal && goal !== 'all') {
-        query += `WHERE goal = ? `;
-        params.push(goal);
-    }
+        if (goal && goal !== 'all') {
+            query += `WHERE goal = ? `;
+            params.push(goal);
+        }
 
-    query += `ORDER BY id DESC LIMIT 15`;
+        query += `ORDER BY id DESC LIMIT 15`;
 
-    db.all(query, params, (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+        const rows = db.prepare(query).all(...params);
         res.json(rows);
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.delete('/api/history/:id', (req, res) => {
-    const id = req.params.id;
-    db.run(`DELETE FROM calculations WHERE id = ?`, [id], function (err) {
-        if (err) return res.status(500).json({ error: err.message });
+    try {
+        const id = req.params.id;
+        db.prepare(`DELETE FROM calculations WHERE id = ?`).run(id);
         res.json({ message: 'Deleted successfully' });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.listen(PORT, () => {
