@@ -9,12 +9,18 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// הגדרה לסמוך על הפרוקסי של Render עבור HTTPS
+app.set('trust proxy', 1);
+
 // הגדרת סשן משתמש
 app.use(session({
     secret: 'fitness_app_secret_key_12345',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // מאובטח ב-Production בלבד
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    }
 }));
 
 app.use(passport.initialize());
@@ -54,10 +60,15 @@ db.serialize(() => {
 });
 
 // --- הגדרת Passport עבור Google Auth ---
+// שימוש ב-callbackURL מלא למניעת בעיות פרוטוקול (http/https)
+const callbackURL = process.env.NODE_ENV === 'production'
+    ? 'https://fitness-app-ngza.onrender.com/api/auth/google/callback'
+    : 'http://localhost:3000/api/auth/google/callback';
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || 'DUMMY_ID',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'DUMMY_SECRET',
-    callbackURL: '/api/auth/google/callback'
+    callbackURL: callbackURL
 },
     (accessToken, refreshToken, profile, done) => {
         const googleId = profile.id;
