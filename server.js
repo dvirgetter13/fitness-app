@@ -3,6 +3,8 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,8 +14,11 @@ app.use(session({
     secret: 'fitness_app_secret_key_12345',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // תקף ל-30 יום
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -25,12 +30,13 @@ const db = new sqlite3.Database(dbPath, (err) => {
     else console.log('מחובר לבסיס הנתונים SQLite');
 });
 
-// יצירת טבלאות (users, history, food_logs)
+// יצירת טבלאות
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        google_id TEXT UNIQUE,
         username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
+        password TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -47,9 +53,45 @@ db.serialize(() => {
     )`);
 });
 
-// --- API להרשמה והתחברות ---
+// --- הגדרת Passport עבור Google Auth ---
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID || 'DUMMY_ID',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'DUMMY_SECRET',
+    callbackURL: '/api/auth/google/callback'
+},
+    (accessToken, refreshToken, profile, done) => {
+        const googleId = profile.id;
+        const displayName = profile.displayName || profile.emails[0].value.split('@')[0];
 
-// הרשמת משתמש חדש
+        db.get(`SELECT * FROM users WHERE google_id = ?`, [googleId], (err, user) => {
+            if (user) {
+                return done(null, user);
+            } else {
+                db.run(`INSERT INTO users (google_id, username) VALUES (?, ?)`, [googleId, displayName], function (err) {
+                    if (err) return done(err);
+                    return done(null, { id: this.lastID, username: displayName });
+                });
+            }
+        });
+    }
+));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+// --- נתיבי Google Auth ---
+app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/api/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/#tab-account' }),
+    (req, res) => {
+        req.session.userId = req.user.id;
+        req.session.username = req.user.username;
+        res.redirect('/#tab-account');
+    }
+);
+
+// --- API רגיל להרשמה והתחברות ---
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password || password.length < 4) {
@@ -60,9 +102,7 @@ app.post('/api/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username.trim(), hashedPassword], function (err) {
             if (err) {
-                if (err.message.includes('UNIQUE')) {
-                    return res.status(400).json({ error: 'שם המשתמש כבר תפוס' });
-                }
+                if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'שם המשתמש כבר תפוס' });
                 return res.status(500).json({ error: 'שגיאה ביצירת המשתמש' });
             }
             req.session.userId = this.lastID;
@@ -74,13 +114,14 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// התחברות משתמש
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'יש להזין שם משתמש וסיסמה' });
 
     db.get(`SELECT * FROM users WHERE username = ?`, [username.trim()], async (err, user) => {
         if (err || !user) return res.status(400).json({ error: 'שם משתמש או סיסמה שגויים' });
+
+        if (!user.password) return res.status(400).json({ error: 'משתמש זה נרשם באמצעות Google' });
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: 'שם משתמש או סיסמה שגויים' });
@@ -91,7 +132,6 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// בדיקת מצב התחברות נוכחי
 app.get('/api/me', (req, res) => {
     if (req.session.userId) {
         res.json({ loggedIn: true, username: req.session.username });
@@ -100,14 +140,12 @@ app.get('/api/me', (req, res) => {
     }
 });
 
-// התנתקות
 app.post('/api/logout', (req, res) => {
     req.session.destroy();
     res.json({ message: 'התנתקת בהצלחה' });
 });
 
 // --- API לחישובים והיסטוריה ---
-
 app.post('/api/calculate', (req, res) => {
     const { weight, height, waist, neck, goal } = req.body;
     if (!weight || !height) return res.status(400).json({ error: 'משקל וגובה הם שדות חובה' });
