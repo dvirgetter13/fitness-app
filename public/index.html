@@ -211,6 +211,22 @@
             border-right: 3px solid var(--success);
         }
 
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -237,6 +253,17 @@
             background: none;
             font-size: 15px;
         }
+
+        .preset-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .preset-badge:hover { background: var(--border-color); }
 
         @media (max-width: 600px) {
             .card { padding: 20px; }
@@ -304,6 +331,90 @@
                 <li><span>שומנים יומיים:</span> <strong id="fatsRes"></strong></li>
             </ul>
             <div class="meal-suggestion" id="mealSuggestion"></div>
+        </div>
+    </div>
+
+    <!-- יומן ארוחות ומעקב יומי (Food Tracker) -->
+    <div class="card">
+        <h2 class="card-title">🥑 יומן ארוחות ומעקב יומי (Food Tracker)</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 16px;">
+            רשום מה אכלת היום ועקוב בזמן אמת אחר היעד הקלורי והחלבון שלך.
+        </p>
+
+        <!-- קיצורי דרך למאכלים נפוצים -->
+        <label style="margin-bottom:8px;">בחירה מהירה:</label>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+            <span class="preset-badge" onclick="setFoodPreset('חזה עוף מבושל', 165, 31)">🍗 חזה עוף (100ג')</span>
+            <span class="preset-badge" onclick="setFoodPreset('אורז לבן מבושל', 130, 2.7)">🍚 אורז מבושל (100ג')</span>
+            <span class="preset-badge" onclick="setFoodPreset('ביצה XL', 78, 6.3)">🥚 ביצה XL (יחידה)</span>
+            <span class="preset-badge" onclick="setFoodPreset('קופסת טונה במים', 120, 26)">🐟 טונה במים (קופסה)</span>
+            <span class="preset-badge" onclick="setFoodPreset('סקופ אבקת חלבון', 120, 24)">🥤 סקופ חלבון</span>
+            <span class="preset-badge" onclick="setFoodPreset('שיבולת שועל', 389, 16.9)">🥣 שיבולת שועל (100ג')</span>
+        </div>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>שם המאכל:</label>
+                <input type="text" id="foodName" placeholder="למשל: חזה עוף">
+            </div>
+            <div class="input-group">
+                <label>כמות בגרמים / יחידות:</label>
+                <input type="number" id="foodGrams" placeholder="למשל: 150" value="100">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>קלוריות ל-100 גרם:</label>
+                <input type="number" id="foodCals100" placeholder="למשל: 165">
+            </div>
+            <div class="input-group">
+                <label>חלבון (גרם) ל-100 גרם:</label>
+                <input type="number" id="foodProtein100" placeholder="למשל: 31">
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="addFoodItem()">הוסף ארוחה ➕</button>
+
+        <!-- סיכום יומי ומדי התקדמות -->
+        <div style="margin-top: 24px; padding: 16px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
+            <h3 style="margin-top:0;">📊 סיכום צריכה להיום</h3>
+            
+            <div style="margin-bottom: 12px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <span>קלוריות: <strong id="trackerCalsCurrent">0</strong> / <span id="trackerCalsTarget">2000</span> קק"ל</span>
+                    <strong id="trackerCalsPercent">0%</strong>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="calsProgressBar"></div>
+                </div>
+            </div>
+
+            <div>
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                    <span>חלבון: <strong id="trackerProteinCurrent">0</strong> / <span id="trackerProteinTarget">150</span> גרם</span>
+                    <strong id="trackerProteinPercent">0%</strong>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="proteinProgressBar" style="background: var(--primary);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- טבלת ארוחות -->
+        <div style="overflow-x: auto; margin-top: 15px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>מאכל</th>
+                        <th>כמות</th>
+                        <th>קלוריות</th>
+                        <th>חלבון</th>
+                        <th>מחק</th>
+                    </tr>
+                </thead>
+                <tbody id="foodTableBody"></tbody>
+            </table>
         </div>
     </div>
 
@@ -433,13 +544,86 @@
         btn.innerHTML = theme === 'dark' ? '☀️ מצב יום' : '🌙 מצב לילה';
     }
 
-    // טעינת העדפת נושא שמורה
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     window.addEventListener('DOMContentLoaded', () => updateThemeBtn(savedTheme));
 
     let progressChart = null;
     let currentHistoryData = [];
+    let foodList = JSON.parse(localStorage.getItem('dailyFoodList') || '[]');
+    let targetCalories = 2000;
+    let targetProtein = 150;
+
+    // ניהול Food Tracker
+    function setFoodPreset(name, cals100, protein100) {
+        document.getElementById('foodName').value = name;
+        document.getElementById('foodCals100').value = cals100;
+        document.getElementById('foodProtein100').value = protein100;
+    }
+
+    function addFoodItem() {
+        const name = document.getElementById('foodName').value.trim();
+        const grams = parseFloat(document.getElementById('foodGrams').value);
+        const cals100 = parseFloat(document.getElementById('foodCals100').value);
+        const protein100 = parseFloat(document.getElementById('foodProtein100').value);
+
+        if (!name || !grams || isNaN(cals100) || isNaN(protein100)) {
+            alert('אנא מלא את כל פרטי המאכל');
+            return;
+        }
+
+        const totalCals = Math.round((cals100 * grams) / 100);
+        const totalProtein = Math.round(((protein100 * grams) / 100) * 10) / 10;
+
+        foodList.push({ id: Date.now(), name, grams, cals: totalCals, protein: totalProtein });
+        localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
+        
+        // איפוס שדות
+        document.getElementById('foodName').value = '';
+        renderFoodList();
+    }
+
+    function removeFoodItem(id) {
+        foodList = foodList.filter(item => item.id !== id);
+        localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
+        renderFoodList();
+    }
+
+    function renderFoodList() {
+        const tbody = document.getElementById('foodTableBody');
+        tbody.innerHTML = '';
+
+        let totalCals = 0;
+        let totalProtein = 0;
+
+        foodList.forEach(item => {
+            totalCals += item.cals;
+            totalProtein += item.protein;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.grams}ג'</td>
+                    <td>${item.cals} קק"ל</td>
+                    <td>${item.protein}ג'</td>
+                    <td><button class="delete-btn" onclick="removeFoodItem(${item.id})">✖</button></td>
+                </tr>
+            `;
+        });
+
+        // עדכון סיכום ומדי התקדמות
+        document.getElementById('trackerCalsCurrent').innerText = totalCals;
+        document.getElementById('trackerProteinCurrent').innerText = totalProtein.toFixed(1);
+
+        const calsPercent = Math.min(100, Math.round((totalCals / targetCalories) * 100));
+        const proteinPercent = Math.min(100, Math.round((totalProtein / targetProtein) * 100));
+
+        document.getElementById('trackerCalsPercent').innerText = `${calsPercent}%`;
+        document.getElementById('trackerProteinPercent').innerText = `${proteinPercent}%`;
+
+        document.getElementById('calsProgressBar').style.width = `${calsPercent}%`;
+        document.getElementById('proteinProgressBar').style.width = `${proteinPercent}%`;
+    }
 
     function renderChart(data) {
         const ctx = document.getElementById('progressChart').getContext('2d');
@@ -545,6 +729,13 @@
         document.getElementById('proteinRes').innerText = `${data.dailyProteinGrams} גרם`;
         document.getElementById('carbsRes').innerText = `${data.dailyCarbGrams} גרם`;
         document.getElementById('fatsRes').innerText = `${data.dailyFatGrams} גרם`;
+
+        // עדכון יעד ה-Tracker לפי תוצאות החישוב
+        targetCalories = data.recommendedCalories;
+        targetProtein = data.dailyProteinGrams;
+        document.getElementById('trackerCalsTarget').innerText = targetCalories;
+        document.getElementById('trackerProteinTarget').innerText = targetProtein;
+        renderFoodList();
 
         const proteinPerMeal = Math.round(data.dailyProteinGrams / 4);
         document.getElementById('mealSuggestion').innerText = `💡 מומלץ לחלק ל-4 ארוחות ביום: כ-${proteinPerMeal} גרם חלבון בכל ארוחה.`;
@@ -687,6 +878,7 @@
     }
 
     loadHistory();
+    renderFoodList();
 </script>
 
 </body>
