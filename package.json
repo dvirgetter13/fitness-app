@@ -1,25 +1,16 @@
 {
   "name": "fitness-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "מחשבון תזונה וכושר מתקדם",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest --runInBand"
+    "test": "node server.test.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "express": "^5.2.1",
-    "express-session": "^1.19.0",
-    "joi": "^18.2.3",
-    "sql.js": "^1.14.1"
-  },
-  "devDependencies": {
-    "jest": "^30.4.2",
-    "supertest": "^7.2.2"
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "sqlite3": "^5.1.7"
   }
 }
