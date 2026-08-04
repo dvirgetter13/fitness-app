@@ -110,7 +110,7 @@
             padding: 8px;
             border-radius: 16px;
             border: 1px solid var(--border-color);
-            scrollbar-width: none; /* הסתרת סרגל גלילה */
+            scrollbar-width: none;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
 
@@ -136,13 +136,8 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        /* תוכן הלשוניות */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .card {
             background: var(--bg-glass);
@@ -221,6 +216,9 @@
 
         .btn-water { background-color: var(--water); color: white; }
         .btn-water:hover { background-color: var(--water-hover); }
+
+        .btn-danger { background-color: #ef4444; color: white; }
+        .btn-danger:hover { background-color: #dc2626; }
 
         .results-box {
             margin-top: 20px;
@@ -305,6 +303,40 @@
         }
         .preset-badge:hover { background: var(--border-color); }
 
+        /* עיצוב הטיימר */
+        .timer-display {
+            font-size: 3.2rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--primary);
+            font-family: monospace;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .timer-btn {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .timer-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
         @media (max-width: 600px) {
             .card { padding: 20px; }
             .grid-2 { grid-template-columns: 1fr; }
@@ -385,7 +417,7 @@
         </div>
     </div>
 
-    <!-- לשונית 2: מעקב ארוחות יומי (Food Tracker) -->
+    <!-- לשונית 2: מעקב ארוחות יומי -->
     <div id="tab-tracker" class="tab-content">
         <div class="card">
             <h2 class="card-title">🥑 יומן ארוחות ומעקב יומי</h2>
@@ -468,8 +500,28 @@
         </div>
     </div>
 
-    <!-- לשונית 3: מחולל תוכניות אימון -->
+    <!-- לשונית 3: מחולל תוכניות אימון + טיימר מנוחה -->
     <div id="tab-workouts" class="tab-content">
+        <!-- רכיב טיימר מנוחה -->
+        <div class="card" style="margin-bottom: 20px; border-right: 4px solid var(--water);">
+            <h2 class="card-title">⏱️ טיימר מנוחה בין סטים</h2>
+            
+            <div class="timer-display" id="timerDisplay">01:00</div>
+
+            <div class="timer-presets">
+                <button class="timer-btn" onclick="startTimer(30)">30 שניות</button>
+                <button class="timer-btn" onclick="startTimer(60)">60 שניות</button>
+                <button class="timer-btn" onclick="startTimer(90)">90 שניות</button>
+                <button class="timer-btn" onclick="startTimer(120)">2 דקות</button>
+                <button class="timer-btn" onclick="startTimer(180)">3 דקות</button>
+            </div>
+
+            <div class="grid-2">
+                <button class="btn btn-water" onclick="togglePauseTimer()" id="pauseTimerBtn">השהה / המשך ⏯️</button>
+                <button class="btn btn-danger" onclick="resetTimer()">אפס טיימר ⏹️</button>
+            </div>
+        </div>
+
         <div class="card">
             <h2 class="card-title">🤖 מחולל תוכניות אימונים מותאם אישית</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 20px;">
@@ -512,7 +564,7 @@
         </div>
     </div>
 
-    <!-- לשונית 4: מחשבוני עזר (1RM ומים) -->
+    <!-- לשונית 4: מחשבוני עזר -->
     <div id="tab-calculators" class="tab-content">
         <div class="grid-2">
             <div class="card" style="margin: 0;">
@@ -621,6 +673,78 @@
     let foodList = JSON.parse(localStorage.getItem('dailyFoodList') || '[]');
     let targetCalories = 2000;
     let targetProtein = 150;
+
+    // ניהול טיימר מנוחה
+    let timerInterval = null;
+    let timerTimeLeft = 60;
+    let isTimerPaused = false;
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateTimerDisplay() {
+        document.getElementById('timerDisplay').innerText = formatTime(timerTimeLeft);
+    }
+
+    function startTimer(seconds) {
+        clearInterval(timerInterval);
+        timerTimeLeft = seconds;
+        isTimerPaused = false;
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+            if (!isTimerPaused) {
+                timerTimeLeft--;
+                updateTimerDisplay();
+
+                if (timerTimeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    onTimerFinished();
+                }
+            }
+        }, 1000);
+    }
+
+    function togglePauseTimer() {
+        if (timerTimeLeft > 0) {
+            isTimerPaused = !isTimerPaused;
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerTimeLeft = 60;
+        isTimerPaused = false;
+        updateTimerDisplay();
+    }
+
+    function onTimerFinished() {
+        // רטט בטלפון במידה ונתמך
+        if ("vibrate" in navigator) {
+            navigator.vibrate([300, 100, 300, 100, 400]);
+        }
+
+        // השמעת צליל סיום מבוסס Web Audio API
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // צליל D5
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.8);
+        } catch (e) {
+            console.log("Audio not allowed without interaction", e);
+        }
+
+        alert("⏱️ המנוחה הסתיימה! חזור לסט הבא 🔥");
+    }
 
     // ניהול Food Tracker
     function setFoodPreset(name, cals100, protein100) {
