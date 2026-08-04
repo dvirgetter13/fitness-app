@@ -338,6 +338,48 @@
         </div>
     </div>
 
+    <!-- מחולל תוכניות אימונים -->
+    <div class="card">
+        <h2 class="card-title">🤖 מחולל תוכניות אימונים מותאם אישית</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 20px;">
+            בחר את הנתונים שלך וקבל תוכנית אימונים מפורטת ומותאמת אישית.
+        </p>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label>מטרת האימון:</label>
+                <select id="workoutGoal">
+                    <option value="hypertrophy">גדילת מסת שריר (היפרטרופיה)</option>
+                    <option value="strength">חיזוק וכוח מרבי</option>
+                    <option value="fat_loss">חיטוב וסיבולת</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>ימי אימון בשבוע:</label>
+                <select id="workoutDays">
+                    <option value="3">3 ימים בשבוע (Full Body - FBW)</option>
+                    <option value="4">4 ימים בשבוע (A/B - עליון/תחתון)</option>
+                    <option value="5">5-6 ימים בשבוע (Push / Pull / Legs)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>ציוד זמין:</label>
+            <select id="workoutEquip">
+                <option value="gym">חדר כושר מלא</option>
+                <option value="home_dumbbells">אימון ביתי (משקולות יד/רצועות)</option>
+                <option value="calisthenics">משקל גוף בלבד (קליסטניקס)</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="generateWorkoutPlan()">צור תוכנית אימונים 🎯</button>
+
+        <div id="workoutResult" class="results-box" style="margin-top: 20px; border-right-color: var(--primary);">
+            <!-- תוכנית האימונים תוזרק לכאן -->
+        </div>
+    </div>
+
     <!-- גרף התקדמות -->
     <div class="card">
         <h3 class="card-title">📈 מגמת משקל וקלוריות</h3>
@@ -543,6 +585,91 @@
             <div><strong>צריכה מומלצת: <span style="color: var(--water);">${totalLiters} ליטר</span> 💧</strong></div>
             <div style="font-size:0.85rem; margin-top:4px;">כ-<strong>${totalGlasses} כוסות מים</strong> ביום.</div>
         `;
+    }
+
+    function generateWorkoutPlan() {
+        const goal = document.getElementById('workoutGoal').value;
+        const days = document.getElementById('workoutDays').value;
+        const equip = document.getElementById('workoutEquip').value;
+
+        const resultDiv = document.getElementById('workoutResult');
+        resultDiv.style.display = 'block';
+
+        let repsText = "8-12 חזרות (מנוחה 60-90 שניות)";
+        if (goal === 'strength') repsText = "4-6 חזרות (מנוחה 2-3 דקות)";
+        if (goal === 'fat_loss') repsText = "12-15 חזרות (מנוחה 45-60 שניות)";
+
+        let htmlContent = `<h3 style="margin-top:0; color:var(--primary);">📋 תוכנית האימונים המומלצת שלך</h3>`;
+        htmlContent += `<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px;">טווח חזרות מומלץ: <strong>${repsText}</strong></p>`;
+
+        if (days === "3") {
+            htmlContent += `
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                        <strong style="color:var(--primary);">אימון FBW — אימון גוף מלא (שלוש פעמים בשבוע)</strong>
+                        <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
+                            ${equip === 'gym' ? `
+                                <li>סקוואט עם מוט / לחיצת רגליים: 3 סטים</li>
+                                <li>לחיצת חזה כנגד מוט / משקולות: 3 סטים</li>
+                                <li>פולי עליון / מתח: 3 סטים</li>
+                                <li>לחיצת כתפיים עם משקולות: 3 סטים</li>
+                                <li>כפילת מרפקים לביספס + פשיטת מרפקים: 2 סטים כל אחד</li>
+                            ` : `
+                                <li>סקוואט כנגד משקל גוף / משקולות: 4 סטים</li>
+                                <li>שכיבות סמיכה / לחיצה: 4 סטים</li>
+                                <li>חתירה עם רצועות / משקולות יד: 4 סטים</li>
+                                <li>לחיצת כתפיים בעמידה: 3 סטים</li>
+                                <li>פלאנק לבטן: 3 סטים (45 שניות)</li>
+                            `}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        } else if (days === "4") {
+            htmlContent += `
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                        <strong style="color:var(--primary);">אימון A — פלג גוף עליון (Upper Body)</strong>
+                        <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
+                            <li>לחיצת חזה בשכיבה: 4 סטים</li>
+                            <li>חתירה בהטיית גו / פולי תחתון: 4 סטים</li>
+                            <li>לחיצת כתפיים: 3 סטים</li>
+                            <li>הרחקת זרועות לצדדים: 3 סטים</li>
+                            <li>סופר-סט זרועות (יד קדמית + יד אחורית): 3 סטים</li>
+                        </ul>
+                    </div>
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                        <strong style="color:var(--success);">אימון B — פלג גוף תחתון + בטן (Lower Body)</strong>
+                        <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
+                            <li>סקוואט חופשי / מכרעים: 4 סטים</li>
+                            <li>דדליפט רומני (RDL): 3 סטים</li>
+                            <li>מכשיר פשיטת ברכיים: 3 סטים</li>
+                            <li>תאומים בעמידה: 4 סטים</li>
+                            <li>הרמת רגליים / בטן: 3 סטים</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        } else {
+            htmlContent += `
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                        <strong style="color:var(--primary);">יום 1: Push (חזה, כתפיים, יד אחורית)</strong>
+                        <p style="margin:4px 0 0 0; font-size:0.85rem;">לחיצת חזה (4 סטים), לחיצה בשיפוע חיובי (3 סטים), לחיצת כתפיים (3 סטים), הרחקת זרועות (3 סטים), פשיטת מרפקים לטריספס (3 סטים).</p>
+                    </div>
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                        <strong style="color:var(--water);">יום 2: Pull (גב, כתף אחורית, יד קדמית)</strong>
+                        <p style="margin:4px 0 0 0; font-size:0.85rem;">מתח / פולי עליון (4 סטים), חתירה במוט (3 סטים), פול-אובר (3 סטים), פרפר הפוך לכתף אחורית (3 סטים), כפילת מרפקים לביספס (4 סטים).</p>
+                    </div>
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                        <strong style="color:var(--success);">יום 3: Legs (רגליים ובטן)</strong>
+                        <p style="margin:4px 0 0 0; font-size:0.85rem;">סקוואט (4 סטים), מכרעים (3 סטים), פשיטת ברכיים (3 סטים), כפילת ברכיים (3 סטים), תאומים + בטן (4 סטים).</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        resultDiv.innerHTML = htmlContent;
     }
 
     function exportToCSV() {
