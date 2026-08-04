@@ -1,179 +1,183 @@
 const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const fs = require('fs');
-const initSqlJs = require('sql.js');
-const Joi = require('joi');
+const bcrypt = require('bcryptjs');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'history.db');
+
+// הגדרת סשן משתמש
+app.use(session({
+    secret: 'fitness_app_secret_key_12345',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // תקף ל-30 יום
+}));
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let db;
+// חיבור לבסיס הנתונים SQLite
+const dbPath = path.join(__dirname, 'history.db');
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) console.error('שגיאה בחיבור לבסיס הנתונים:', err.message);
+    else console.log('מחובר לבסיס הנתונים SQLite');
+});
 
-// אתחול מסד הנתונים sql.js
-initSqlJs().then((SQL) => {
-    if (fs.existsSync(DB_FILE)) {
-        const filebuffer = fs.readFileSync(DB_FILE);
-        db = new SQL.Database(filebuffer);
-    } else {
-        db = new SQL.Database();
-    }
-
-    db.run(`CREATE TABLE IF NOT EXISTS calculations (
+// יצירת טבלאות (users, history, food_logs)
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
         weight REAL,
         height REAL,
-        waist REAL,
-        neck REAL,
         body_fat REAL,
         goal TEXT,
         calories INTEGER,
         protein INTEGER,
-        carbs INTEGER,
-        fats INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-    saveDatabase();
-    console.log('Database initialized successfully.');
-}).catch(err => {
-    console.error('Failed to initialize database:', err);
 });
 
-function saveDatabase() {
-    if (!db) return;
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_FILE, buffer);
-}
+// --- API להרשמה והתחברות ---
 
-const calculationSchema = Joi.object({
-    weight: Joi.number().min(30).max(300).required(),
-    height: Joi.number().min(100).max(250).required(),
-    waist: Joi.number().min(40).max(200).optional().allow('', null),
-    neck: Joi.number().min(20).max(100).optional().allow('', null),
-    goal: Joi.string().valid('muscle', 'fat_loss', 'maintenance').required()
-});
-
-app.post('/api/calculate', (req, res) => {
-    if (!db) return res.status(500).json({ error: 'Database not ready' });
-
-    const { error, value } = calculationSchema.validate(req.body);
-    if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+// הרשמת משתמש חדש
+app.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password || password.length < 4) {
+        return res.status(400).json({ error: 'שם משתמש וסיסמה (לפחות 4 תווים) חובה' });
     }
 
-    const { weight, height, waist, neck, goal } = value;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username.trim(), hashedPassword], function (err) {
+            if (err) {
+                if (err.message.includes('UNIQUE')) {
+                    return res.status(400).json({ error: 'שם המשתמש כבר תפוס' });
+                }
+                return res.status(500).json({ error: 'שגיאה ביצירת המשתמש' });
+            }
+            req.session.userId = this.lastID;
+            req.session.username = username.trim();
+            res.json({ message: 'הרשמה בוצעה בהצלחה', username: req.session.username });
+        });
+    } catch (e) {
+        res.status(500).json({ error: 'שגיאה בשרת' });
+    }
+});
+
+// התחברות משתמש
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'יש להזין שם משתמש וסיסמה' });
+
+    db.get(`SELECT * FROM users WHERE username = ?`, [username.trim()], async (err, user) => {
+        if (err || !user) return res.status(400).json({ error: 'שם משתמש או סיסמה שגויים' });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ error: 'שם משתמש או סיסמה שגויים' });
+
+        req.session.userId = user.id;
+        req.session.username = user.username;
+        res.json({ message: 'התחברת בהצלחה', username: user.username });
+    });
+});
+
+// בדיקת מצב התחברות נוכחי
+app.get('/api/me', (req, res) => {
+    if (req.session.userId) {
+        res.json({ loggedIn: true, username: req.session.username });
+    } else {
+        res.json({ loggedIn: false });
+    }
+});
+
+// התנתקות
+app.post('/api/logout', (req, res) => {
+    req.session.destroy();
+    res.json({ message: 'התנתקת בהצלחה' });
+});
+
+// --- API לחישובים והיסטוריה ---
+
+app.post('/api/calculate', (req, res) => {
+    const { weight, height, waist, neck, goal } = req.body;
+    if (!weight || !height) return res.status(400).json({ error: 'משקל וגובה הם שדות חובה' });
+
+    let bmr = (10 * weight) + (6.25 * height) - (5 * 25) + 5;
+    let tdee = Math.round(bmr * 1.375);
+
+    let recommendedCalories = tdee;
+    let dailyProteinGrams = Math.round(weight * 2.0);
+
+    if (goal === 'muscle') recommendedCalories += 300;
+    else if (goal === 'fat_loss') recommendedCalories -= 400;
+
+    let remainingCals = recommendedCalories - (dailyProteinGrams * 4);
+    let dailyFatGrams = Math.round((recommendedCalories * 0.25) / 9);
+    let dailyCarbGrams = Math.round((remainingCals - (dailyFatGrams * 9)) / 4);
 
     let bodyFatPercentage = null;
     if (waist && neck && waist > neck) {
-        bodyFatPercentage = Math.round(
-            (86.010 * Math.log10(waist - neck) - 70.041 * Math.log10(height) + 36.76) * 10
-        ) / 10;
-        if (bodyFatPercentage < 3) bodyFatPercentage = 3;
+        bodyFatPercentage = (495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height))) - 461;
+        bodyFatPercentage = Math.round(bodyFatPercentage * 10) / 10;
     }
 
-    const baseCalories = Math.round((10 * weight + 6.25 * height - 5 * 25 + 5) * 1.2);
-    let recommendedCalories = baseCalories;
-    let proteinMultiplier = 2.0;
+    const userId = req.session.userId || null;
 
-    if (goal === 'muscle') {
-        recommendedCalories = baseCalories + 300;
-        proteinMultiplier = 2.0;
-    } else if (goal === 'fat_loss') {
-        recommendedCalories = baseCalories - 400;
-        proteinMultiplier = 2.0;
-    } else if (goal === 'maintenance') {
-        recommendedCalories = baseCalories;
-        proteinMultiplier = 1.8;
-    }
-
-    const proteinGrams = Math.round(weight * proteinMultiplier);
-    const fatGrams = Math.round(weight * 0.9);
-    const proteinCalories = proteinGrams * 4;
-    const fatCalories = fatGrams * 9;
-    const carbCalories = Math.max(0, recommendedCalories - (proteinCalories + fatCalories));
-    const carbGrams = Math.round(carbCalories / 4);
-
-    try {
-        db.run(
-            `INSERT INTO calculations (weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [weight, height, waist || null, neck || null, bodyFatPercentage, goal, recommendedCalories, proteinGrams, carbGrams, fatGrams]
-        );
-        saveDatabase();
-
-        const resStmt = db.prepare(`SELECT last_insert_rowid() as id`);
-        let newId = null;
-        if (resStmt.step()) {
-            newId = resStmt.getAsObject().id;
+    db.run(`INSERT INTO history (user_id, weight, height, body_fat, goal, calories, protein) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [userId, weight, height, bodyFatPercentage, goal, recommendedCalories, dailyProteinGrams],
+        function (err) {
+            if (err) console.error('שגיאה בשמירת היסטוריה:', err.message);
         }
-        resStmt.free();
+    );
 
-        res.json({
-            id: newId,
-            weight,
-            height,
-            waist,
-            neck,
-            bodyFatPercentage,
-            goal,
-            dailyProteinGrams: proteinGrams,
-            dailyFatGrams: fatGrams,
-            dailyCarbGrams: carbGrams,
-            recommendedCalories
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    res.json({ recommendedCalories, dailyProteinGrams, dailyCarbGrams, dailyFatGrams, bodyFatPercentage });
 });
 
 app.get('/api/history', (req, res) => {
-    if (!db) return res.status(500).json({ error: 'Database not ready' });
+    const { goal } = req.query;
+    const userId = req.session.userId || null;
 
-    try {
-        const { goal } = req.query;
-        let query = `SELECT id, weight, height, waist, neck, body_fat, goal, calories, protein, carbs, fats, strftime('%Y-%m-%d %H:%M', created_at) as created_at FROM calculations `;
-        let params = [];
+    let sql = `SELECT * FROM history WHERE 1=1`;
+    let params = [];
 
-        if (goal && goal !== 'all') {
-            query += `WHERE goal = ? `;
-            params.push(goal);
-        }
-
-        query += `ORDER BY id DESC LIMIT 15`;
-
-        const stmt = db.prepare(query);
-        stmt.bind(params);
-
-        const rows = [];
-        while (stmt.step()) {
-            rows.push(stmt.getAsObject());
-        }
-        stmt.free();
-
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+    if (userId) {
+        sql += ` AND user_id = ?`;
+        params.push(userId);
+    } else {
+        sql += ` AND user_id IS NULL`;
     }
+
+    if (goal && goal !== 'all') {
+        sql += ` AND goal = ?`;
+        params.push(goal);
+    }
+
+    sql += ` ORDER BY id ASC`;
+
+    db.all(sql, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: 'שגיאה בשליפת היסטוריה' });
+        res.json(rows);
+    });
 });
 
 app.delete('/api/history/:id', (req, res) => {
-    if (!db) return res.status(500).json({ error: 'Database not ready' });
-
-    try {
-        const id = req.params.id;
-        db.run(`DELETE FROM calculations WHERE id = ?`, [id]);
-        saveDatabase();
-        res.json({ message: 'Deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    const { id } = req.params;
+    db.run(`DELETE FROM history WHERE id = ?`, [id], function (err) {
+        if (err) return res.status(500).json({ error: 'שגיאה במחיקת פריט' });
+        res.json({ message: 'הפריט נמחק' });
+    });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`השרת רץ בהצלחה בפורט ${PORT}`);
 });
-
-module.exports = app;

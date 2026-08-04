@@ -8,12 +8,10 @@
     <meta name="keywords" content="מחשבון קלוריות, חלבון, אחוזי שומן, כושר, חיטוב, מסה">
     <meta name="google-site-verification" content="CdTSEsr_0VEq94tiPyKgSHscHHNJ-WX-eV8ZB1O4q8c" />
     
-    <!-- PWA & Theme Manifest -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2563eb">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
 
-    <!-- Open Graph -->
     <meta property="og:title" content="מחשבון תזונה וכושר | Fitness App">
     <meta property="og:description" content="חשב בקלות קלוריות, ערכים תזונתיים ואחוזי שומן מוערכים.">
     <meta property="og:type" content="website">
@@ -101,7 +99,6 @@
 
         .theme-toggle-btn:hover { transform: scale(1.05); }
 
-        /* סרגל לשוניות ניווט (Tabs) */
         .nav-tabs {
             display: flex;
             gap: 8px;
@@ -116,13 +113,13 @@
 
         .tab-btn {
             flex: 1;
-            min-width: 120px;
-            padding: 10px 14px;
+            min-width: 110px;
+            padding: 10px 12px;
             border: none;
             background: transparent;
             color: var(--text-muted);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             border-radius: 10px;
             cursor: pointer;
             white-space: nowrap;
@@ -303,7 +300,6 @@
         }
         .preset-badge:hover { background: var(--border-color); }
 
-        /* עיצוב הטיימר */
         .timer-display {
             font-size: 3.2rem;
             font-weight: 800;
@@ -350,9 +346,10 @@
     <!-- סרגל עליון -->
     <div class="top-bar">
         <span style="font-weight: bold; font-size: 1.1rem;">💪 Fitness App</span>
-        <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
-            🌙 מצב לילה
-        </button>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span id="userGreeting" style="font-size:0.9rem; font-weight:600;"></span>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 מצב לילה</button>
+        </div>
     </div>
 
     <!-- סרגל לשוניות ניווט -->
@@ -361,7 +358,8 @@
         <button class="tab-btn" onclick="switchTab('tracker')">🥑 מעקב ארוחות</button>
         <button class="tab-btn" onclick="switchTab('workouts')">🏋️‍♂️ תוכניות אימון</button>
         <button class="tab-btn" onclick="switchTab('calculators')">🔢 מחשבוני עזר</button>
-        <button class="tab-btn" onclick="switchTab('history')">📈 היסטוריה וגרף</button>
+        <button class="tab-btn" onclick="switchTab('history')">📈 היסטוריה</button>
+        <button class="tab-btn" onclick="switchTab('account')">👤 החשבון שלי</button>
     </div>
 
     <!-- לשונית 1: מחשבון תזונה -->
@@ -417,7 +415,7 @@
         </div>
     </div>
 
-    <!-- לשונית 2: מעקב ארוחות יומי -->
+    <!-- לשונית 2: מעקב ארוחות -->
     <div id="tab-tracker" class="tab-content">
         <div class="card">
             <h2 class="card-title">🥑 יומן ארוחות ומעקב יומי</h2>
@@ -500,9 +498,8 @@
         </div>
     </div>
 
-    <!-- לשונית 3: מחולל תוכניות אימון + טיימר מנוחה -->
+    <!-- לשונית 3: מחולל תוכניות אימון + טיימר -->
     <div id="tab-workouts" class="tab-content">
-        <!-- רכיב טיימר מנוחה -->
         <div class="card" style="margin-bottom: 20px; border-right: 4px solid var(--water);">
             <h2 class="card-title">⏱️ טיימר מנוחה בין סטים</h2>
             
@@ -517,7 +514,7 @@
             </div>
 
             <div class="grid-2">
-                <button class="btn btn-water" onclick="togglePauseTimer()" id="pauseTimerBtn">השהה / המשך ⏯️</button>
+                <button class="btn btn-water" onclick="togglePauseTimer()">השהה / המשך ⏯️</button>
                 <button class="btn btn-danger" onclick="resetTimer()">אפס טיימר ⏹️</button>
             </div>
         </div>
@@ -558,9 +555,7 @@
 
             <button class="btn btn-primary" onclick="generateWorkoutPlan()">צור תוכנית אימונים 🎯</button>
 
-            <div id="workoutResult" class="results-box" style="margin-top: 20px; border-right-color: var(--primary);">
-                <!-- תוכנית האימונים תוזרק לכאן -->
-            </div>
+            <div id="workoutResult" class="results-box" style="margin-top: 20px; border-right-color: var(--primary);"></div>
         </div>
     </div>
 
@@ -634,10 +629,55 @@
         </div>
     </div>
 
+    <!-- לשונית 6: החשבון שלי (התחברות/הרשמה) -->
+    <div id="tab-account" class="tab-content">
+        <div class="card">
+            <h2 class="card-title">👤 החשבון שלי</h2>
+
+            <!-- אזור התחברות/הרשמה -->
+            <div id="authForms">
+                <div class="grid-2">
+                    <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
+                        <h3>🔑 התחברות</h3>
+                        <div class="input-group">
+                            <label>שם משתמש:</label>
+                            <input type="text" id="loginUsername">
+                        </div>
+                        <div class="input-group">
+                            <label>סיסמה:</label>
+                            <input type="password" id="loginPassword">
+                        </div>
+                        <button class="btn btn-primary" onclick="login()">התחבר 🔓</button>
+                    </div>
+
+                    <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
+                        <h3>📝 הרשמה לחשבון חדש</h3>
+                        <div class="input-group">
+                            <label>שם משתמש חדש:</label>
+                            <input type="text" id="regUsername">
+                        </div>
+                        <div class="input-group">
+                            <label>סיסמה:</label>
+                            <input type="password" id="regPassword">
+                        </div>
+                        <button class="btn btn-success" onclick="register()">צור חשבון ✨</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- אזור משתמש מחובר -->
+            <div id="userLoggedInView" style="display: none; text-align: center; padding: 20px;">
+                <h3 style="color: var(--success); font-size: 1.5rem;">שלום, <span id="accountUsername"></span>! 👋</h3>
+                <p style="color: var(--text-muted);">אתה מחובר כעת. כל הנתונים, ההיסטוריה והיומן שלך מסונכרנים לענן.</p>
+                <button class="btn btn-danger" style="max-width: 200px; margin-top: 15px;" onclick="logout()">התנתק 🚪</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // ניהול לשוניות (Tabs)
+    // ניהול לשוניות
     function switchTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -645,9 +685,7 @@
         document.getElementById(`tab-${tabName}`).classList.add('active');
         event.currentTarget.classList.add('active');
 
-        if (tabName === 'history') {
-            loadHistory();
-        }
+        if (tabName === 'history') loadHistory();
     }
 
     // ניהול Dark Mode
@@ -666,7 +704,10 @@
 
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    window.addEventListener('DOMContentLoaded', () => updateThemeBtn(savedTheme));
+    window.addEventListener('DOMContentLoaded', () => {
+        updateThemeBtn(savedTheme);
+        checkAuth();
+    });
 
     let progressChart = null;
     let currentHistoryData = [];
@@ -674,7 +715,62 @@
     let targetCalories = 2000;
     let targetProtein = 150;
 
-    // ניהול טיימר מנוחה
+    // ניהול משתמשים (Auth)
+    async function checkAuth() {
+        try {
+            const res = await fetch('/api/me');
+            const data = await res.json();
+            if (data.loggedIn) {
+                document.getElementById('authForms').style.display = 'none';
+                document.getElementById('userLoggedInView').style.display = 'block';
+                document.getElementById('accountUsername').innerText = data.username;
+                document.getElementById('userGreeting').innerText = `שלום, ${data.username}`;
+            } else {
+                document.getElementById('authForms').style.display = 'block';
+                document.getElementById('userLoggedInView').style.display = 'none';
+                document.getElementById('userGreeting').innerText = '';
+            }
+        } catch (e) {
+            console.error("שגיאה בבדיקת התחברות", e);
+        }
+    }
+
+    async function register() {
+        const username = document.getElementById('regUsername').value;
+        const password = document.getElementById('regPassword').value;
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(`שגיאה: ${data.error}`);
+        alert('הרשמה בוצעה בהצלחה!');
+        checkAuth();
+    }
+
+    async function login() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(`שגיאה: ${data.error}`);
+        alert('התחברת בהצלחה!');
+        checkAuth();
+        loadHistory();
+    }
+
+    async function logout() {
+        await fetch('/api/logout', { method: 'POST' });
+        checkAuth();
+        loadHistory();
+    }
+
+    // ניהול טיימר
     let timerInterval = null;
     let timerTimeLeft = 60;
     let isTimerPaused = false;
@@ -709,9 +805,7 @@
     }
 
     function togglePauseTimer() {
-        if (timerTimeLeft > 0) {
-            isTimerPaused = !isTimerPaused;
-        }
+        if (timerTimeLeft > 0) isTimerPaused = !isTimerPaused;
     }
 
     function resetTimer() {
@@ -722,12 +816,7 @@
     }
 
     function onTimerFinished() {
-        // רטט בטלפון במידה ונתמך
-        if ("vibrate" in navigator) {
-            navigator.vibrate([300, 100, 300, 100, 400]);
-        }
-
-        // השמעת צליל סיום מבוסס Web Audio API
+        if ("vibrate" in navigator) navigator.vibrate([300, 100, 300, 100, 400]);
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
@@ -735,14 +824,11 @@
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // צליל D5
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.8);
-        } catch (e) {
-            console.log("Audio not allowed without interaction", e);
-        }
-
+        } catch (e) {}
         alert("⏱️ המנוחה הסתיימה! חזור לסט הבא 🔥");
     }
 
@@ -759,17 +845,13 @@
         const cals100 = parseFloat(document.getElementById('foodCals100').value);
         const protein100 = parseFloat(document.getElementById('foodProtein100').value);
 
-        if (!name || !grams || isNaN(cals100) || isNaN(protein100)) {
-            alert('אנא מלא את כל פרטי המאכל');
-            return;
-        }
+        if (!name || !grams || isNaN(cals100) || isNaN(protein100)) return alert('אנא מלא את כל פרטי המאכל');
 
         const totalCals = Math.round((cals100 * grams) / 100);
         const totalProtein = Math.round(((protein100 * grams) / 100) * 10) / 10;
 
         foodList.push({ id: Date.now(), name, grams, cals: totalCals, protein: totalProtein });
         localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
-        
         document.getElementById('foodName').value = '';
         renderFoodList();
     }
@@ -783,14 +865,12 @@
     function renderFoodList() {
         const tbody = document.getElementById('foodTableBody');
         tbody.innerHTML = '';
-
         let totalCals = 0;
         let totalProtein = 0;
 
         foodList.forEach(item => {
             totalCals += item.cals;
             totalProtein += item.protein;
-
             tbody.innerHTML += `
                 <tr>
                     <td>${item.name}</td>
@@ -810,7 +890,6 @@
 
         document.getElementById('trackerCalsPercent').innerText = `${calsPercent}%`;
         document.getElementById('trackerProteinPercent').innerText = `${proteinPercent}%`;
-
         document.getElementById('calsProgressBar').style.width = `${calsPercent}%`;
         document.getElementById('proteinProgressBar').style.width = `${proteinPercent}%`;
     }
@@ -828,24 +907,8 @@
             data: {
                 labels: labels,
                 datasets: [
-                    {
-                        label: 'משקל (ק"ג)',
-                        data: weights,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        yAxisID: 'yWeight',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: 'קלוריות',
-                        data: calories,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        yAxisID: 'yCalories',
-                        tension: 0.3,
-                        fill: true
-                    }
+                    { label: 'משקל (ק"ג)', data: weights, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', yAxisID: 'yWeight', tension: 0.3, fill: true },
+                    { label: 'קלוריות', data: calories, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', yAxisID: 'yCalories', tension: 0.3, fill: true }
                 ]
             },
             options: {
