@@ -97,7 +97,7 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- 🤖 נתיב צ'אט AI (פנייה ישירה ל-API הרשמי) ---
+// --- 🤖 נתיב צ'אט AI (פנייה ישירה ל-API הרשמי v1) ---
 app.post('/api/ai-chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
@@ -109,7 +109,8 @@ app.post('/api/ai-chat', async (req, res) => {
     }
 
     try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // שים לב: השימוש כאן הוא ב-v1 היציב
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const response = await fetch(url, {
             method: 'POST',
