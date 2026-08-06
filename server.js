@@ -107,7 +107,8 @@ app.post('/api/ai-chat', async (req, res) => {
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        // מתוקן: שימוש במודל הנתמך והרשמי gemini-1.5-flash
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const prompt = `אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. 
 ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית.
 שאילתת המשתמש: ${message}`;
