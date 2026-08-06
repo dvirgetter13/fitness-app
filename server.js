@@ -5,13 +5,9 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// הגדרת Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 app.set('trust proxy', 1);
 
@@ -101,30 +97,48 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- 🤖 נתיב צ'אט AI ---
+// --- 🤖 נתיב צ'אט AI (פנייה ישירה ל-API הרשמי) ---
 app.post('/api/ai-chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
 
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        console.error('שגיאה: GEMINI_API_KEY אינו מוגדר במשתני הסביבה!');
+        return res.status(500).json({ error: 'מפתח API אינו מוגדר בשרת' });
+    }
+
     try {
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            console.error('שגיאה: GEMINI_API_KEY אינו מוגדר במשתני הסביבה!');
-            return res.status(500).json({ error: 'מפתח API אינו מוגדר בשרת' });
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. 
+ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית.
+שאילתת המשתמש: ${message}`
+                    }]
+                }]
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Gemini API Error Response:', JSON.stringify(data));
+            return res.status(response.status).json({ error: data.error?.message || 'שגיאה מול Gemini API' });
         }
 
-        // שימוש במודל gemini-2.0-flash העדכני
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        const prompt = `אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. 
-ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית.
-שאילתת המשתמש: ${message}`;
+        const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'לא התקבלה תשובה מוקראת.';
+        res.json({ reply: replyText });
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
-
-        res.json({ reply: responseText });
     } catch (error) {
-        console.error('שגיאה מפורטת בתקשורת עם Gemini AI:', error.message || error);
+        console.error('שגיאה בתקשורת עם Gemini AI:', error.message || error);
         res.status(500).json({ error: 'שגיאה בעיבוד הבקשה מול ה-AI.' });
     }
 });
