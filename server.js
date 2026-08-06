@@ -1,24 +1,26 @@
-const express = require('express');
+ο»Ώconst express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// δβγψδ μρξεκ ςμ δτψεχρι ωμ Render ςαεψ HTTPS
+// Χ”Χ’Χ“Χ¨Χª Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
 app.set('trust proxy', 1);
 
-// δβγψϊ ρωο ξωϊξω
 app.use(session({
     secret: 'fitness_app_secret_key_12345',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // ξΰεαθη α-Production αμαγ
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 30 * 24 * 60 * 60 * 1000
     }
 }));
@@ -29,14 +31,13 @@ app.use(passport.session());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ηιαεψ μαριρ δπϊεπιν SQLite
+// Χ—Χ™Χ‘Χ•Χ¨ ΧΧ‘Χ΅Χ™Χ΅ Χ”Χ ΧªΧ•Χ Χ™Χ SQLite
 const dbPath = path.join(__dirname, 'history.db');
 const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) console.error('ωβιΰδ αηιαεψ μαριρ δπϊεπιν:', err.message);
-    else console.log('ξηεαψ μαριρ δπϊεπιν SQLite');
+    if (err) console.error('Χ©Χ’Χ™ΧΧ” Χ‘Χ—Χ™Χ‘Χ•Χ¨ ΧΧ‘Χ΅Χ™Χ΅ Χ”Χ ΧªΧ•Χ Χ™Χ:', err.message);
+    else console.log('ΧΧ—Χ•Χ‘Χ¨ ΧΧ‘Χ΅Χ™Χ΅ Χ”Χ ΧªΧ•Χ Χ™Χ SQLite');
 });
 
-// ιφιψϊ θαμΰεϊ
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,8 +60,7 @@ db.serialize(() => {
     )`);
 });
 
-// --- δβγψϊ Passport ςαεψ Google Auth ---
-// ωιξεω α-callbackURL ξμΰ μξπιςϊ αςιεϊ τψεθεχεμ (http/https)
+// Google OAuth
 const callbackURL = process.env.NODE_ENV === 'production'
     ? 'https://fitness-app-ngza.onrender.com/api/auth/google/callback'
     : 'http://localhost:3000/api/auth/google/callback';
@@ -90,7 +90,6 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
-// --- πϊιαι Google Auth ---
 app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/api/auth/google/callback',
@@ -102,44 +101,65 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- API ψβιμ μδψωξδ εδϊηαψεϊ ---
+// --- π¤– Χ ΧªΧ™Χ‘ Χ¦'ΧΧ AI ---
+app.post('/api/ai-chat', async (req, res) => {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Χ™Χ© ΧΧ”Χ–Χ™Χ Χ”Χ•Χ“ΧΆΧ”' });
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const prompt = `ΧΧªΧ” ΧΆΧ•Χ–Χ¨ Χ•Χ™Χ•ΧΆΧ¥ ΧΧ•ΧΧ—Χ” ΧΧªΧ–Χ•Χ Χ”, Χ›Χ•Χ©Χ¨ Χ•Χ‘Χ Χ™Χ™Χª Χ©Χ¨Χ™Χ¨ Χ‘ΧΧ¤ΧΧ™Χ§Χ¦Χ™Χ™Χª Fitness App. 
+ΧΆΧ Χ” Χ‘Χ¦Χ•Χ¨Χ” ΧΧ§Χ¦Χ•ΧΆΧ™Χª, ΧªΧΧ¦Χ™ΧªΧ™Χª, ΧΧΆΧ•Χ“Χ“Χª Χ•Χ‘Χ©Χ¤Χ” Χ”ΧΆΧ‘Χ¨Χ™Χª.
+Χ©ΧΧ™ΧΧªΧª Χ”ΧΧ©ΧªΧΧ©: ${message}`;
+
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+
+        res.json({ reply: responseText });
+    } catch (error) {
+        console.error('Χ©Χ’Χ™ΧΧ” Χ‘ΧªΧ§Χ©Χ•Χ¨Χª ΧΆΧ Gemini AI:', error);
+        res.status(500).json({ error: 'ΧΧ¦ΧΧΆΧ¨Χ™Χ, ΧΧ™Χ¨ΧΆΧ” Χ©Χ’Χ™ΧΧ” Χ‘ΧΆΧ™Χ‘Χ•Χ“ Χ”Χ‘Χ§Χ©Χ” ΧΧ•Χ Χ”-AI.' });
+    }
+});
+
+// Auth API
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password || password.length < 4) {
-        return res.status(400).json({ error: 'ων ξωϊξω εριρξδ (μτηεϊ 4 ϊεειν) ηεαδ' });
+        return res.status(400).json({ error: 'Χ©Χ ΧΧ©ΧªΧΧ© Χ•Χ΅Χ™Χ΅ΧΧ” (ΧΧ¤Χ—Χ•Χª 4 ΧªΧ•Χ•Χ™Χ) Χ—Χ•Χ‘Χ”' });
     }
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username.trim(), hashedPassword], function (err) {
             if (err) {
-                if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'ων δξωϊξω λαψ ϊτερ' });
-                return res.status(500).json({ error: 'ωβιΰδ αιφιψϊ δξωϊξω' });
+                if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Χ©Χ Χ”ΧΧ©ΧªΧΧ© Χ›Χ‘Χ¨ ΧªΧ¤Χ•Χ΅' });
+                return res.status(500).json({ error: 'Χ©Χ’Χ™ΧΧ” Χ‘Χ™Χ¦Χ™Χ¨Χª Χ”ΧΧ©ΧªΧΧ©' });
             }
             req.session.userId = this.lastID;
             req.session.username = username.trim();
-            res.json({ message: 'δψωξδ αεφςδ αδφμηδ', username: req.session.username });
+            res.json({ message: 'Χ”Χ¨Χ©ΧΧ” Χ‘Χ•Χ¦ΧΆΧ” Χ‘Χ”Χ¦ΧΧ—Χ”', username: req.session.username });
         });
     } catch (e) {
-        res.status(500).json({ error: 'ωβιΰδ αωψϊ' });
+        res.status(500).json({ error: 'Χ©Χ’Χ™ΧΧ” Χ‘Χ©Χ¨Χª' });
     }
 });
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: 'ιω μδζιο ων ξωϊξω εριρξδ' });
+    if (!username || !password) return res.status(400).json({ error: 'Χ™Χ© ΧΧ”Χ–Χ™Χ Χ©Χ ΧΧ©ΧªΧΧ© Χ•Χ΅Χ™Χ΅ΧΧ”' });
 
     db.get(`SELECT * FROM users WHERE username = ?`, [username.trim()], async (err, user) => {
-        if (err || !user) return res.status(400).json({ error: 'ων ξωϊξω ΰε ριρξδ ωβειιν' });
+        if (err || !user) return res.status(400).json({ error: 'Χ©Χ ΧΧ©ΧªΧΧ© ΧΧ• Χ΅Χ™Χ΅ΧΧ” Χ©Χ’Χ•Χ™Χ™Χ' });
 
-        if (!user.password) return res.status(400).json({ error: 'ξωϊξω ζδ πψων αΰξφςεϊ Google' });
+        if (!user.password) return res.status(400).json({ error: 'ΧΧ©ΧªΧΧ© Χ–Χ” Χ Χ¨Χ©Χ Χ‘ΧΧΧ¦ΧΆΧ•Χª Google' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: 'ων ξωϊξω ΰε ριρξδ ωβειιν' });
+        if (!isMatch) return res.status(400).json({ error: 'Χ©Χ ΧΧ©ΧªΧΧ© ΧΧ• Χ΅Χ™Χ΅ΧΧ” Χ©Χ’Χ•Χ™Χ™Χ' });
 
         req.session.userId = user.id;
         req.session.username = user.username;
-        res.json({ message: 'δϊηαψϊ αδφμηδ', username: user.username });
+        res.json({ message: 'Χ”ΧªΧ—Χ‘Χ¨Χª Χ‘Χ”Χ¦ΧΧ—Χ”', username: user.username });
     });
 });
 
@@ -153,13 +173,13 @@ app.get('/api/me', (req, res) => {
 
 app.post('/api/logout', (req, res) => {
     req.session.destroy();
-    res.json({ message: 'δϊπϊχϊ αδφμηδ' });
+    res.json({ message: 'Χ”ΧªΧ ΧªΧ§Χª Χ‘Χ”Χ¦ΧΧ—Χ”' });
 });
 
-// --- API μηιωεαιν εδιρθεψιδ ---
+// Calculations & History API
 app.post('/api/calculate', (req, res) => {
     const { weight, height, waist, neck, goal } = req.body;
-    if (!weight || !height) return res.status(400).json({ error: 'ξωχμ εβεαδ δν ωγεϊ ηεαδ' });
+    if (!weight || !height) return res.status(400).json({ error: 'ΧΧ©Χ§Χ Χ•Χ’Χ•Χ‘Χ” Χ”Χ Χ©Χ“Χ•Χª Χ—Χ•Χ‘Χ”' });
 
     let bmr = (10 * weight) + (6.25 * height) - (5 * 25) + 5;
     let tdee = Math.round(bmr * 1.375);
@@ -185,7 +205,7 @@ app.post('/api/calculate', (req, res) => {
     db.run(`INSERT INTO history (user_id, weight, height, body_fat, goal, calories, protein) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [userId, weight, height, bodyFatPercentage, goal, recommendedCalories, dailyProteinGrams],
         function (err) {
-            if (err) console.error('ωβιΰδ αωξιψϊ διρθεψιδ:', err.message);
+            if (err) console.error('Χ©Χ’Χ™ΧΧ” Χ‘Χ©ΧΧ™Χ¨Χª Χ”Χ™Χ΅ΧΧ•Χ¨Χ™Χ”:', err.message);
         }
     );
 
@@ -214,7 +234,7 @@ app.get('/api/history', (req, res) => {
     sql += ` ORDER BY id ASC`;
 
     db.all(sql, params, (err, rows) => {
-        if (err) return res.status(500).json({ error: 'ωβιΰδ αωμιτϊ διρθεψιδ' });
+        if (err) return res.status(500).json({ error: 'Χ©Χ’Χ™ΧΧ” Χ‘Χ©ΧΧ™Χ¤Χª Χ”Χ™Χ΅ΧΧ•Χ¨Χ™Χ”' });
         res.json(rows);
     });
 });
@@ -222,11 +242,11 @@ app.get('/api/history', (req, res) => {
 app.delete('/api/history/:id', (req, res) => {
     const { id } = req.params;
     db.run(`DELETE FROM history WHERE id = ?`, [id], function (err) {
-        if (err) return res.status(500).json({ error: 'ωβιΰδ αξηιχϊ τψιθ' });
-        res.json({ message: 'δτψιθ πξηχ' });
+        if (err) return res.status(500).json({ error: 'Χ©Χ’Χ™ΧΧ” Χ‘ΧΧ—Χ™Χ§Χª Χ¤Χ¨Χ™Χ' });
+        res.json({ message: 'Χ”Χ¤Χ¨Χ™Χ Χ ΧΧ—Χ§' });
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`δωψϊ ψυ αδφμηδ ατεψθ ${PORT}`);
+    console.log(`Χ”Χ©Χ¨Χª Χ¨Χ¥ Χ‘Χ”Χ¦ΧΧ—Χ” Χ‘Χ¤Χ•Χ¨Χ ${PORT}`);
 });

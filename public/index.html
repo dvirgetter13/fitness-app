@@ -358,6 +358,7 @@
         <button class="tab-btn" onclick="switchTab('tracker')">🥑 מעקב ארוחות</button>
         <button class="tab-btn" onclick="switchTab('workouts')">🏋️‍♂️ תוכניות אימון</button>
         <button class="tab-btn" onclick="switchTab('calculators')">🔢 מחשבוני עזר</button>
+        <button class="tab-btn" onclick="switchTab('ai')">🤖 ייעוץ AI</button>
         <button class="tab-btn" onclick="switchTab('history')">📈 היסטוריה</button>
         <button class="tab-btn" onclick="switchTab('account')">👤 החשבון שלי</button>
     </div>
@@ -592,7 +593,28 @@
         </div>
     </div>
 
-    <!-- לשונית 5: היסטוריה וגרף -->
+    <!-- לשונית 5: צ'אט AI -->
+    <div id="tab-ai" class="tab-content">
+        <div class="card">
+            <h2 class="card-title">🤖 להתייעצות עם מומחה כושר AI</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 16px;">
+                שאל כל שאלה בנושאי תזונה, תוכניות אימון, תוספים ובניית שריר!
+            </p>
+            
+            <div id="chatHistory" style="height:320px; overflow-y:auto; border:1px solid var(--border-color); padding:12px; border-radius:12px; margin:15px 0; background:rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:10px;">
+                <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:10px 14px; border-radius:12px; align-self:flex-start; max-width:85%;">
+                    👋 שלום! אני עוזר ה-AI שלך. איך אוכל לעזור לך היום בדרך ליעדים שלך?
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="aiInput" placeholder="שאל שאלה (למשל: כמה חלבון צריך אחרי אימון?)" onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <button class="btn btn-success" onclick="sendAiMessage()" style="width: auto; margin-top:0; padding: 0 20px;">שלח 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- לשונית 6: היסטוריה וגרף -->
     <div id="tab-history" class="tab-content">
         <div class="card" style="margin-bottom: 20px;">
             <h3 class="card-title">📈 מגמת משקל וקלוריות</h3>
@@ -629,7 +651,7 @@
         </div>
     </div>
 
-    <!-- לשונית 6: החשבון שלי (התחברות/הרשמה) -->
+    <!-- לשונית 7: החשבון שלי (התחברות/הרשמה) -->
     <div id="tab-account" class="tab-content">
         <div class="card">
             <h2 class="card-title">👤 החשבון שלי</h2>
@@ -777,6 +799,60 @@
         await fetch('/api/logout', { method: 'POST' });
         checkAuth();
         loadHistory();
+    }
+
+    // ניהול צ'אט AI
+    async function sendAiMessage() {
+        const input = document.getElementById('aiInput');
+        const chatHistory = document.getElementById('chatHistory');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        chatHistory.innerHTML += `
+            <div style="background:var(--primary); color:white; padding:10px 14px; border-radius:12px; align-self:flex-end; max-width:85%; text-align:right;">
+                ${message}
+            </div>
+        `;
+        
+        input.value = '';
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        const loadingId = 'loading-' + Date.now();
+        chatHistory.innerHTML += `
+            <div id="${loadingId}" style="background:var(--card-bg); border:1px solid var(--border-color); padding:10px 14px; border-radius:12px; align-self:flex-start; opacity:0.8;">
+                חוסב על תשובה... ⏳
+            </div>
+        `;
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        try {
+            const res = await fetch('/api/ai-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await res.json();
+            const loadingElem = document.getElementById(loadingId);
+            if (loadingElem) loadingElem.remove();
+
+            if (data.reply) {
+                chatHistory.innerHTML += `
+                    <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:10px 14px; border-radius:12px; align-self:flex-start; max-width:85%;">
+                        ${data.reply.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+            } else {
+                chatHistory.innerHTML += `<div style="color:#ef4444; align-self:center; font-size:0.9rem;">שגיאה בקבלת תשובה.</div>`;
+            }
+        } catch (err) {
+            const loadingElem = document.getElementById(loadingId);
+            if (loadingElem) loadingElem.remove();
+            chatHistory.innerHTML += `<div style="color:#ef4444; align-self:center; font-size:0.9rem;">שגיאת תקשורת עם השרת.</div>`;
+        }
+
+        chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
     // ניהול טיימר
