@@ -98,7 +98,7 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- 🤖 נתיב צ'אט AI (דרך Hugging Face Router API המעודכן) ---
+// --- 🤖 נתיב צ'אט AI (דרך Hugging Face Router API) ---
 app.post('/api/ai-chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
@@ -117,7 +117,7 @@ app.post('/api/ai-chat', async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+                model: 'meta-llama/Llama-3.2-1B-Instruct',
                 messages: [
                     {
                         role: 'system',
