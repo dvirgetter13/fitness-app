@@ -97,58 +97,54 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- 🤖 נתיב צ'אט AI (מודלים בעלי מכסת חינם פתוחה) ---
+// --- 🤖 נתיב צ'אט AI (דרך Hugging Face API חינמי ויציב) ---
 app.post('/api/ai-chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.HF_API_KEY;
     if (!apiKey) {
-        console.error('שגיאה: GEMINI_API_KEY אינו מוגדר במשתני הסביבה!');
-        return res.status(500).json({ error: 'מפתח API אינו מוגדר בשרת' });
+        console.error('שגיאה: HF_API_KEY אינו מוגדר במשתני הסביבה!');
+        return res.status(500).json({ error: 'מפתח HF_API_KEY אינו מוגדר בשרת' });
     }
 
-    // מודלים בעלי מכסת חינם (Free Tier) נגישה ורחבה
-    const modelsToTry = [
-        { name: 'gemini-1.5-flash-8b', version: 'v1beta' },
-        { name: 'gemini-1.5-flash', version: 'v1beta' },
-        { name: 'gemini-2.0-flash-lite', version: 'v1beta' }
-    ];
+    try {
+        const response = await fetch('https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'Qwen/Qwen2.5-Coder-32B-Instruct',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית בלבד.'
+                    },
+                    {
+                        role: 'user',
+                        content: message
+                    }
+                ],
+                max_tokens: 500
+            })
+        });
 
-    for (const modelConfig of modelsToTry) {
-        try {
-            const url = `https://generativelanguage.googleapis.com/${modelConfig.version}/models/${modelConfig.name}:generateContent?key=${apiKey}`;
+        const data = await response.json();
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. 
-ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית.
-שאילתת המשתמש: ${message}`
-                        }]
-                    }]
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                const replyText = data.candidates[0].content.parts[0].text;
-                return res.json({ reply: replyText });
-            }
-
-            console.warn(`Model ${modelConfig.name} failed with status ${response.status}:`, JSON.stringify(data));
-        } catch (error) {
-            console.error(`Error trying model ${modelConfig.name}:`, error.message || error);
+        if (!response.ok) {
+            console.error('HF API Error Response:', JSON.stringify(data));
+            return res.status(response.status).json({ error: data.error || 'שגיאה מול ה-AI API' });
         }
-    }
 
-    res.status(500).json({ error: 'אירעה שגיאה בעיבוד הבקשה מול ה-AI. בדוק את תקינות המפתח וההרשאות ב-Render.' });
+        const replyText = data.choices?.[0]?.message?.content || 'לא התקבלה תשובה.';
+        res.json({ reply: replyText });
+
+    } catch (error) {
+        console.error('שגיאה בתקשורת עם ה-AI:', error.message || error);
+        res.status(500).json({ error: 'שגיאה בעיבוד הבקשה מול ה-AI.' });
+    }
 });
 
 // Auth API
