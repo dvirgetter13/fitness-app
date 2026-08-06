@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
