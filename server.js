@@ -97,7 +97,7 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- 🤖 נתיב צ'אט AI ---
+// --- 🤖 נתיב צ'אט AI (מודלים בעלי מכסת חינם פתוחה) ---
 app.post('/api/ai-chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
@@ -108,11 +108,11 @@ app.post('/api/ai-chat', async (req, res) => {
         return res.status(500).json({ error: 'מפתח API אינו מוגדר בשרת' });
     }
 
-    // רשימת מודלים נתמכים לניסיון
+    // מודלים בעלי מכסת חינם (Free Tier) נגישה ורחבה
     const modelsToTry = [
-        { name: 'gemini-2.0-flash', version: 'v1beta' },
-        { name: 'gemini-1.5-pro', version: 'v1beta' },
-        { name: 'gemini-2.5-flash', version: 'v1beta' }
+        { name: 'gemini-1.5-flash-8b', version: 'v1beta' },
+        { name: 'gemini-1.5-flash', version: 'v1beta' },
+        { name: 'gemini-2.0-flash-lite', version: 'v1beta' }
     ];
 
     for (const modelConfig of modelsToTry) {
