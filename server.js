@@ -107,8 +107,14 @@ app.post('/api/ai-chat', async (req, res) => {
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
 
     try {
-        // מתוקן: שימוש במודל הנתמך והרשמי gemini-1.5-flash
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            console.error('שגיאה: GEMINI_API_KEY אינו מוגדר במשתני הסביבה!');
+            return res.status(500).json({ error: 'מפתח API אינו מוגדר בשרת' });
+        }
+
+        // שימוש בשם המודל המעודכן ביותר למניעת שגיאת 404
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
         const prompt = `אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. 
 ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית.
 שאילתת המשתמש: ${message}`;
@@ -118,8 +124,8 @@ app.post('/api/ai-chat', async (req, res) => {
 
         res.json({ reply: responseText });
     } catch (error) {
-        console.error('שגיאה בתקשורת עם Gemini AI:', error);
-        res.status(500).json({ error: 'מצטערים, אירעה שגיאה בעיבוד הבקשה מול ה-AI.' });
+        console.error('שגיאה מפורטת בתקשורת עם Gemini AI:', error.message || error);
+        res.status(500).json({ error: 'שגיאה בעיבוד הבקשה מול ה-AI.' });
     }
 });
 
