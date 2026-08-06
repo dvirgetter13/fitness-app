@@ -113,8 +113,8 @@ app.post('/api/ai-chat', async (req, res) => {
             return res.status(500).json({ error: 'מפתח API אינו מוגדר בשרת' });
         }
 
-        // שימוש בשם המודל המעודכן ביותר למניעת שגיאת 404
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        // שימוש במודל gemini-2.0-flash העדכני
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         const prompt = `אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. 
 ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית.
 שאילתת המשתמש: ${message}`;
