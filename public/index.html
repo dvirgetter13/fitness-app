@@ -333,7 +333,6 @@
             color: var(--primary);
         }
 
-        /* 🤖 עיצוב ווידג'ט צ'אט צף בפינת המסך */
         .ai-fab-btn {
             position: fixed;
             bottom: 25px;
@@ -479,6 +478,16 @@
                     <li><span>שומנים יומיים:</span> <strong id="fatsRes"></strong></li>
                 </ul>
                 <div class="meal-suggestion" id="mealSuggestion"></div>
+
+                <!-- 🥗 חלק חדש: תפריט תזונה מותאם אישית -->
+                <hr style="margin: 20px 0 15px 0; border: none; border-top: 1px solid var(--border-color);">
+                <div class="input-group">
+                    <label>מאכלים שאינך אוהב / רגישויות (אופציונלי):</label>
+                    <input type="text" id="dislikedFoods" placeholder="למשל: דגים, טחינה, מוצרי חלב, חצילים...">
+                </div>
+                <button class="btn btn-primary" id="btnGenerateMenu" onclick="generateMenu()">🥗 תפריט תזונה מותאם אישית</button>
+                
+                <div id="personalizedMenuBox" style="display:none; margin-top:15px; padding:16px; background:var(--card-bg); border-right:4px solid var(--primary); border-radius:10px; white-space:pre-wrap; font-size:0.92rem; line-height:1.6; border:1px solid var(--border-color);"></div>
             </div>
         </div>
     </div>
@@ -588,7 +597,7 @@
         </div>
 
         <div class="card">
-            <h2 class="card-title">🤖 מחולל תוכניות אימונים מותאם אישית</h2>
+            <h2 class="card-title">🎯 מחולל תוכניות אימונים מותאם אישית</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 20px;">
                 בחר את הנתונים שלך וקבל תוכנית אימונים מפורטת ומותאמת אישית.
             </p>
@@ -751,22 +760,22 @@
 
 </div>
 
-<!-- 🤖 כפתור ווידג'ט צ'אט AI צף בפינה -->
+<!-- כפתור ווידג'ט צ'אט צף בפינה -->
 <button class="ai-fab-btn" onclick="toggleAiChat()">
-    <span>🤖</span>
-    <span>ייעוץ AI</span>
+    <span>💬</span>
+    <span>ייעוץ ותמיכה</span>
 </button>
 
-<!-- 🤖 חלון הצ'אט הקופץ -->
+<!-- חלון הצ'אט הקופץ -->
 <div class="ai-chat-window" id="aiChatWindow">
     <div class="ai-chat-header">
-        <span>🤖 מומחה כושר AI</span>
+        <span>💬 ייעוץ תזונתי ואישי</span>
         <button class="ai-chat-close" onclick="toggleAiChat()">✖</button>
     </div>
     
     <div id="chatHistory" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;">
         <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:10px 14px; border-radius:12px; align-self:flex-start; max-width:85%; font-size:0.9rem;">
-            👋 שלום! אני עוזר ה-AI שלך. איך אוכל לעזור לך היום בדרך ליעדים שלך?
+            👋 שלום! במה אוכל לעזור לך היום בדרך להשגת היעדים שלך?
         </div>
     </div>
 
@@ -777,7 +786,9 @@
 </div>
 
 <script>
-    // פתיחה/סגירה של צ'אט ה-AI הצף
+    let lastCalcData = null;
+
+    // פתיחה/סגירה של הצ'אט הצף
     function toggleAiChat() {
         const win = document.getElementById('aiChatWindow');
         win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
@@ -876,7 +887,7 @@
         loadHistory();
     }
 
-    // ניהול צ'אט AI
+    // ניהול צ'אט תמיכה
     async function sendAiMessage() {
         const input = document.getElementById('aiInput');
         const chatHistory = document.getElementById('chatHistory');
@@ -896,7 +907,7 @@
         const loadingId = 'loading-' + Date.now();
         chatHistory.innerHTML += `
             <div id="${loadingId}" style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 12px; border-radius:12px; align-self:flex-start; opacity:0.8; font-size:0.85rem;">
-                חושב על תשובה... ⏳
+                מכין תשובה... ⏳
             </div>
         `;
         chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -1131,6 +1142,8 @@
         const data = await response.json();
         if (!response.ok) return alert(`שגיאה: ${data.error}`);
 
+        lastCalcData = data;
+
         if (data.bodyFatPercentage) {
             document.getElementById('bodyFatRes').innerText = data.bodyFatPercentage;
             document.getElementById('fatBox').style.display = 'block';
@@ -1152,6 +1165,51 @@
         const proteinPerMeal = Math.round(data.dailyProteinGrams / 4);
         document.getElementById('mealSuggestion').innerText = `💡 מומלץ לחלק ל-4 ארוחות ביום: כ-${proteinPerMeal} גרם חלבון בכל ארוחה.`;
         document.getElementById('resultsBox').style.display = 'block';
+    }
+
+    // פונקציית בניית תפריט תזונה מותאם אישית
+    async function generateMenu() {
+        if (!lastCalcData) {
+            alert('אנא בצע חישוב במחשבון התזונה תחילה');
+            return;
+        }
+
+        const btn = document.getElementById('btnGenerateMenu');
+        const box = document.getElementById('personalizedMenuBox');
+        const weight = document.getElementById('weight').value;
+        const goal = document.getElementById('goal').value;
+        const dislikedFoods = document.getElementById('dislikedFoods').value;
+
+        btn.disabled = true;
+        btn.innerText = 'מפיק תפריט מותאם אישית... ⏳';
+        box.style.display = 'block';
+        box.innerText = 'מחשב ומפיק עבורך תפריט יומי עשיר ומפורט לפי היעדים וההעדפות...';
+
+        try {
+            const res = await fetch('/api/generate-menu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    weight: weight,
+                    goal: goal,
+                    calories: lastCalcData.recommendedCalories,
+                    protein: lastCalcData.dailyProteinGrams,
+                    dislikedFoods: dislikedFoods
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                box.innerText = data.menu;
+            } else {
+                box.innerText = 'שגיאה: ' + (data.error || 'נסה שוב מאוחר יותר');
+            }
+        } catch (e) {
+            box.innerText = 'שגיאה בתקשורת מול השרת.';
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '🥗 תפריט תזונה מותאם אישית';
+        }
     }
 
     function calculate1RM() {

@@ -98,7 +98,7 @@ app.get('/api/auth/google/callback',
     }
 );
 
-// --- 🤖 נתיב צ'אט AI (דרך Groq API - יציב, חינמי ומהיר) ---
+// --- 💬 נתיב צ'אט תמיכה וייעוץ ---
 app.post('/api/ai-chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'יש להזין הודעה' });
@@ -121,7 +121,7 @@ app.post('/api/ai-chat', async (req, res) => {
                 messages: [
                     {
                         role: 'system',
-                        content: 'אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית בלבד.'
+                        content: 'אתה עוזר ויועץ מומחה לתזונה, כושר ובניית שריר באפליקציית Fitness App. ענה בצורה מקצועית, תמציתית, מעודדת ובשפה העברית בלבד. אל תציין שאתה AI או מודל שפה.'
                     },
                     {
                         role: 'user',
@@ -136,7 +136,7 @@ app.post('/api/ai-chat', async (req, res) => {
 
         if (!response.ok) {
             console.error('Groq API Error Response:', JSON.stringify(data));
-            return res.status(response.status).json({ error: data.error?.message || 'שגיאה מול ה-AI API' });
+            return res.status(response.status).json({ error: data.error?.message || 'שגיאה בעיבוד הבקשה' });
         }
 
         const replyText = data.choices?.[0]?.message?.content || 'לא התקבלה תשובה.';
@@ -144,7 +144,76 @@ app.post('/api/ai-chat', async (req, res) => {
 
     } catch (error) {
         console.error('שגיאה בתקשורת עם ה-AI:', error.message || error);
-        res.status(500).json({ error: 'שגיאה בעיבוד הבקשה מול ה-AI.' });
+        res.status(500).json({ error: 'שגיאה בעיבוד הבקשה.' });
+    }
+});
+
+// --- 🥗 נתיב בניית תפריט תזונה מותאם אישית ---
+app.post('/api/generate-menu', async (req, res) => {
+    const { goal, weight, calories, protein, dislikedFoods } = req.body;
+
+    if (!calories || !protein) {
+        return res.status(400).json({ error: 'יש לבצע חישוב במחשבון התזונה תחילה' });
+    }
+
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+        return res.status(500).json({ error: 'מפתח GROQ_API_KEY אינו מוגדר בשרת' });
+    }
+
+    const prompt = `
+צור תפריט תזונה יומי מותאם אישית עבור משתמש באפליקציית כושר ותזונה.
+נתוני המשתמש:
+- יעד: ${goal === 'muscle' ? 'בניית מסת שריר' : goal === 'fat_loss' ? 'חיטוב וירידה באחוז שומן' : 'שמירה על המשקל'}
+- משקל: ${weight ? weight + ' ק"ג' : 'לא צוין'}
+- יעד קלורי יומי: כ-${calories} קלוריות
+- יעד חלבון יומי: כ-${protein} גרם חלבון
+- מאכלים/רכיבים שהמשתמש אינו אוהב או נמנע מהם: ${dislikedFoods || 'אין רגישויות/העדפות מיוחדות'}
+
+דרישות חובה לבניית התפריט:
+1. חלק את היום ל-4 ארוחות: ארוחת בוקר, ארוחת צהריים, ארוחת ערב וארוחת ביניים/אימון.
+2. הקפד **באופן מוחלט** שלא לכלול שום מאכל מתוך הרשימה שהמשתמש ציין שהוא לא אוהב/נמנע ממנה!
+3. עבור כל ארוחה, פרט את הרכיבים והכמויות המדויקות (בגרמים/כפות/יחידות) ומה כמות החלבון והקלוריות המשוערת בה.
+4. השתמש בסימוני אימוג'י בולטים ובכותרות ברורות לכל ארוחה.
+5. בסוף התפריט תן סיכום קצר של סך כל הערכים וטיפ זהב קצר להצלחה בתהליך.
+6. הצג ישירות את התפריט ללא פתיחים, ללא מילות קישור וללא כל התייחסות ל-AI או לבינה מלאכותית.
+    `;
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'אתה מנוע תזונה קלינית וספורטיבית מתקדם. תפקידך להפיק תפריטי תזונה מפורטים, מובנים ומקצועיים בלבד בשפה העברית.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 1200
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: data.error?.message || 'שגיאה ביצירת התפריט' });
+        }
+
+        const menuText = data.choices?.[0]?.message?.content || 'לא ניתן היה לייצר תפריט.';
+        res.json({ menu: menuText });
+
+    } catch (error) {
+        console.error('שגיאה ביצירת תפריט:', error.message || error);
+        res.status(500).json({ error: 'שגיאה בעיבוד הבקשה ליצירת תפריט.' });
     }
 });
 
