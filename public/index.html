@@ -7,7 +7,7 @@
     <meta name="description" content="מחשבון תזונה וכושר מתקדם לחישוב קלוריות, חלבון, פחמימות, שומנים ואחוזי שומן.">
     <meta name="keywords" content="מחשבון קלוריות, חלבון, אחוזי שומן, כושר, חיטוב, מסה">
     <meta name="google-site-verification" content="CdTSEsr_0VEq94tiPyKgSHscHHNJ-WX-eV8ZB1O4q8c" />
-    
+
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2563eb">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2964/2964514.png">
@@ -15,7 +15,7 @@
     <meta property="og:title" content="מחשבון תזונה וכושר | Fitness App">
     <meta property="og:description" content="חשב בקלות קלוריות, ערכים תזונתיים ואחוזי שומן מוערכים.">
     <meta property="og:type" content="website">
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -48,12 +48,13 @@
             --card-bg: #0f172a;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
-                        url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), url('https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             flex-direction: column;
@@ -97,7 +98,9 @@
             transition: transform 0.2s;
         }
 
-        .theme-toggle-btn:hover { transform: scale(1.05); }
+            .theme-toggle-btn:hover {
+                transform: scale(1.05);
+            }
 
         .nav-tabs {
             display: flex;
@@ -109,7 +112,10 @@
             border: 1px solid var(--border-color);
             scrollbar-width: none;
         }
-        .nav-tabs::-webkit-scrollbar { display: none; }
+
+            .nav-tabs::-webkit-scrollbar {
+                display: none;
+            }
 
         .tab-btn {
             flex: 1;
@@ -127,14 +133,19 @@
             text-align: center;
         }
 
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            .tab-btn.active {
+                background: var(--primary);
+                color: white;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            }
+
+        .tab-content {
+            display: none;
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+            .tab-content.active {
+                display: block;
+            }
 
         .card {
             background: var(--bg-glass);
@@ -162,7 +173,10 @@
             gap: 16px;
         }
 
-        .input-group { margin-bottom: 14px; text-align: right; }
+        .input-group {
+            margin-bottom: 14px;
+            text-align: right;
+        }
 
         label {
             display: block;
@@ -184,10 +198,10 @@
             outline: none;
         }
 
-        input:focus, select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-        }
+            input:focus, select:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            }
 
         .btn {
             width: 100%;
@@ -205,17 +219,41 @@
             gap: 8px;
         }
 
-        .btn-success { background-color: var(--success); color: white; }
-        .btn-success:hover { background-color: var(--success-hover); }
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
 
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: var(--primary-hover); }
+            .btn-success:hover {
+                background-color: var(--success-hover);
+            }
 
-        .btn-water { background-color: var(--water); color: white; }
-        .btn-water:hover { background-color: var(--water-hover); }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
 
-        .btn-danger { background-color: #ef4444; color: white; }
-        .btn-danger:hover { background-color: #dc2626; }
+            .btn-primary:hover {
+                background-color: var(--primary-hover);
+            }
+
+        .btn-water {
+            background-color: var(--water);
+            color: white;
+        }
+
+            .btn-water:hover {
+                background-color: var(--water-hover);
+            }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+            .btn-danger:hover {
+                background-color: #dc2626;
+            }
 
         .results-box {
             margin-top: 20px;
@@ -227,14 +265,22 @@
             border: 1px solid var(--border-color);
         }
 
-        .macro-list { list-style: none; padding: 0; margin: 12px 0 0 0; }
-        .macro-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
+        .macro-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0 0;
         }
-        .macro-list li:last-child { border-bottom: none; }
+
+            .macro-list li {
+                padding: 8px 0;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                justify-content: space-between;
+            }
+
+                .macro-list li:last-child {
+                    border-bottom: none;
+                }
 
         .meal-suggestion {
             margin-top: 15px;
@@ -279,7 +325,10 @@
             color: var(--text-main);
         }
 
-        th { background-color: rgba(255,255,255,0.05); font-weight: 700; }
+        th {
+            background-color: rgba(255,255,255,0.05);
+            font-weight: 700;
+        }
 
         .delete-btn {
             color: #ef4444;
@@ -298,7 +347,10 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .preset-badge:hover { background: var(--border-color); }
+
+            .preset-badge:hover {
+                background: var(--border-color);
+            }
 
         .timer-display {
             font-size: 3.2rem;
@@ -328,10 +380,11 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .timer-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
+
+            .timer-btn:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
 
         .ai-fab-btn {
             position: fixed;
@@ -352,10 +405,11 @@
             z-index: 1000;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .ai-fab-btn:hover {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.5);
-        }
+
+            .ai-fab-btn:hover {
+                transform: translateY(-3px) scale(1.03);
+                box-shadow: 0 12px 28px rgba(37, 99, 235, 0.5);
+            }
 
         .ai-chat-window {
             position: fixed;
@@ -377,8 +431,15 @@
         }
 
         @keyframes popup {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .ai-chat-header {
@@ -400,954 +461,964 @@
         }
 
         @media (max-width: 600px) {
-            .card { padding: 20px; }
-            .grid-2 { grid-template-columns: 1fr; }
-            .ai-chat-window { bottom: 85px; left: 15px; width: calc(100vw - 30px); }
+            .card {
+                padding: 20px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-chat-window {
+                bottom: 85px;
+                left: 15px;
+                width: calc(100vw - 30px);
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
+    <div class="main-wrapper">
 
-    <!-- סרגל עליון -->
-    <div class="top-bar">
-        <span style="font-weight: bold; font-size: 1.1rem;">💪 Fitness App</span>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span id="userGreeting" style="font-size:0.9rem; font-weight:600;"></span>
-            <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 מצב לילה</button>
-        </div>
-    </div>
-
-    <!-- סרגל לשוניות ניווט נקי -->
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('nutrition')">🥗 מחשבון תזונה</button>
-        <button class="tab-btn" onclick="switchTab('tracker')">🥑 מעקב ארוחות</button>
-        <button class="tab-btn" onclick="switchTab('workouts')">🏋️‍♂️ תוכניות אימון</button>
-        <button class="tab-btn" onclick="switchTab('calculators')">🔢 מחשבוני עזר</button>
-        <button class="tab-btn" onclick="switchTab('history')">📈 היסטוריה</button>
-        <button class="tab-btn" onclick="switchTab('account')">👤 החשבון שלי</button>
-    </div>
-
-    <!-- לשונית 1: מחשבון תזונה -->
-    <div id="tab-nutrition" class="tab-content active">
-        <div class="card">
-            <h2 class="card-title">🥗 מחשבון תזונה מתקדם</h2>
-            
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>משקל (ק"ג):</label>
-                    <input type="number" id="weight" placeholder="למשל: 80">
-                </div>
-                <div class="input-group">
-                    <label>גובה (ס"מ):</label>
-                    <input type="number" id="height" placeholder="למשל: 180">
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>היקף מותניים (ס"מ): <span style="font-size:11px; color:var(--text-muted);">(רשות)</span></label>
-                    <input type="number" id="waist" placeholder="למשל: 85">
-                </div>
-                <div class="input-group">
-                    <label>היקף צוואר (ס"מ): <span style="font-size:11px; color:var(--text-muted);">(רשות)</span></label>
-                    <input type="number" id="neck" placeholder="למשל: 38">
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>יעד תזונתי:</label>
-                <select id="goal">
-                    <option value="muscle">בניית מסת שריר</option>
-                    <option value="fat_loss">חיטוב (ירידה באחוז שומן)</option>
-                    <option value="maintenance">שמירה על המשקל</option>
-                </select>
-            </div>
-
-            <button class="btn btn-success" onclick="calculate()">חשב תפריט 🚀</button>
-
-            <div class="results-box" id="resultsBox">
-                <h3 style="margin-top:0;">תוצאות מומלצות:</h3>
-                <p id="fatBox" style="display:none; color:var(--primary); font-weight: bold;">אחוז שומן מוערך: <span id="bodyFatRes"></span>%</p>
-                <p style="font-size: 1.1rem;">קלוריות יומיות: <strong id="caloriesRes" style="color:var(--primary);"></strong> קק"ל</p>
-                
-                <ul class="macro-list">
-                    <li><span>חלבון יומי:</span> <strong id="proteinRes"></strong></li>
-                    <li><span>פחמימות יומיות:</span> <strong id="carbsRes"></strong></li>
-                    <li><span>שומנים יומיים:</span> <strong id="fatsRes"></strong></li>
-                </ul>
-                <div class="meal-suggestion" id="mealSuggestion"></div>
-
-                <!-- 🥗 חלק חדש: תפריט תזונה מותאם אישית -->
-                <hr style="margin: 20px 0 15px 0; border: none; border-top: 1px solid var(--border-color);">
-                <div class="input-group">
-                    <label>מאכלים שאינך אוהב / רגישויות (אופציונלי):</label>
-                    <input type="text" id="dislikedFoods" placeholder="למשל: דגים, טחינה, מוצרי חלב, חצילים...">
-                </div>
-                <button class="btn btn-primary" id="btnGenerateMenu" onclick="generateMenu()">🥗 תפריט תזונה מותאם אישית</button>
-                
-                <div id="personalizedMenuBox" style="display:none; margin-top:15px; padding:16px; background:var(--card-bg); border-right:4px solid var(--primary); border-radius:10px; white-space:pre-wrap; font-size:0.92rem; line-height:1.6; border:1px solid var(--border-color);"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- לשונית 2: מעקב ארוחות -->
-    <div id="tab-tracker" class="tab-content">
-        <div class="card">
-            <h2 class="card-title">🥑 יומן ארוחות ומעקב יומי</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 16px;">
-                רשום מה אכלת היום ועקוב בזמן אמת אחר היעד הקלורי והחלבון שלך.
-            </p>
-
-            <label style="margin-bottom:8px;">בחירה מהירה:</label>
-            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-                <span class="preset-badge" onclick="setFoodPreset('חזה עוף מבושל', 165, 31)">🍗 חזה עוף (100ג')</span>
-                <span class="preset-badge" onclick="setFoodPreset('אורז לבן מבושל', 130, 2.7)">🍚 אורז מבושל (100ג')</span>
-                <span class="preset-badge" onclick="setFoodPreset('ביצה XL', 78, 6.3)">🥚 ביצה XL (יחידה)</span>
-                <span class="preset-badge" onclick="setFoodPreset('קופסת טונה במים', 120, 26)">🐟 טונה במים (קופסה)</span>
-                <span class="preset-badge" onclick="setFoodPreset('סקופ אבקת חלבון', 120, 24)">🥤 סקופ חלבון</span>
-                <span class="preset-badge" onclick="setFoodPreset('שיבולת שועל', 389, 16.9)">🥣 שיבולת שועל (100ג')</span>
-            </div>
-
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>שם המאכל:</label>
-                    <input type="text" id="foodName" placeholder="למשל: חזה עוף">
-                </div>
-                <div class="input-group">
-                    <label>כמות בגרמים / יחידות:</label>
-                    <input type="number" id="foodGrams" placeholder="למשל: 150" value="100">
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>קלוריות ל-100 גרם:</label>
-                    <input type="number" id="foodCals100" placeholder="למשל: 165">
-                </div>
-                <div class="input-group">
-                    <label>חלבון (גרם) ל-100 גרם:</label>
-                    <input type="number" id="foodProtein100" placeholder="למשל: 31">
-                </div>
-            </div>
-
-            <button class="btn btn-primary" onclick="addFoodItem()">הוסף ארוחה ➕</button>
-
-            <div style="margin-top: 24px; padding: 16px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
-                <h3 style="margin-top:0;">📊 סיכום צריכה להיום</h3>
-                
-                <div style="margin-bottom: 12px;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
-                        <span>קלוריות: <strong id="trackerCalsCurrent">0</strong> / <span id="trackerCalsTarget">2000</span> קק"ל</span>
-                        <strong id="trackerCalsPercent">0%</strong>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="calsProgressBar"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
-                        <span>חלבון: <strong id="trackerProteinCurrent">0</strong> / <span id="trackerProteinTarget">150</span> גרם</span>
-                        <strong id="trackerProteinPercent">0%</strong>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="proteinProgressBar" style="background: var(--primary);"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="overflow-x: auto; margin-top: 15px;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>מאכל</th>
-                            <th>כמות</th>
-                            <th>קלוריות</th>
-                            <th>חלבון</th>
-                            <th>מחק</th>
-                        </tr>
-                    </thead>
-                    <tbody id="foodTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- לשונית 3: מחולל תוכניות אימון + טיימר -->
-    <div id="tab-workouts" class="tab-content">
-        <div class="card" style="margin-bottom: 20px; border-right: 4px solid var(--water);">
-            <h2 class="card-title">⏱️ טיימר מנוחה בין סטים</h2>
-            
-            <div class="timer-display" id="timerDisplay">01:00</div>
-
-            <div class="timer-presets">
-                <button class="timer-btn" onclick="startTimer(30)">30 שניות</button>
-                <button class="timer-btn" onclick="startTimer(60)">60 שניות</button>
-                <button class="timer-btn" onclick="startTimer(90)">90 שניות</button>
-                <button class="timer-btn" onclick="startTimer(120)">2 דקות</button>
-                <button class="timer-btn" onclick="startTimer(180)">3 דקות</button>
-            </div>
-
-            <div class="grid-2">
-                <button class="btn btn-water" onclick="togglePauseTimer()">השהה / המשך ⏯️</button>
-                <button class="btn btn-danger" onclick="resetTimer()">אפס טיימר ⏹️</button>
+        <!-- סרגל עליון -->
+        <div class="top-bar">
+            <span style="font-weight: bold; font-size: 1.1rem;">💪 Fitness App</span>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span id="userGreeting" style="font-size:0.9rem; font-weight:600;"></span>
+                <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 מצב לילה</button>
             </div>
         </div>
 
-        <div class="card">
-            <h2 class="card-title">🎯 מחולל תוכניות אימונים מותאם אישית</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 20px;">
-                בחר את הנתונים שלך וקבל תוכנית אימונים מפורטת ומותאמת אישית.
-            </p>
-
-            <div class="grid-2">
-                <div class="input-group">
-                    <label>מטרת האימון:</label>
-                    <select id="workoutGoal">
-                        <option value="hypertrophy">גדילת מסת שריר (היפרטרופיה)</option>
-                        <option value="strength">חיזוק וכוח מרבי</option>
-                        <option value="fat_loss">חיטוב וסיבולת</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>ימי אימון בשבוע:</label>
-                    <select id="workoutDays">
-                        <option value="3">3 ימים בשבוע (Full Body - FBW)</option>
-                        <option value="4">4 ימים בשבוע (A/B - עליון/תחתון)</option>
-                        <option value="5">5-6 ימים בשבוע (Push / Pull / Legs)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>ציוד זמין:</label>
-                <select id="workoutEquip">
-                    <option value="gym">חדר כושר מלא</option>
-                    <option value="home_dumbbells">אימון ביתי (משקולות יד/רצועות)</option>
-                    <option value="calisthenics">משקל גוף בלבד (קליסטניקס)</option>
-                </select>
-            </div>
-
-            <button class="btn btn-primary" onclick="generateWorkoutPlan()">צור תוכנית אימונים 🎯</button>
-
-            <div id="workoutResult" class="results-box" style="margin-top: 20px; border-right-color: var(--primary);"></div>
-        </div>
-    </div>
-
-    <!-- לשונית 4: מחשבוני עזר -->
-    <div id="tab-calculators" class="tab-content">
-        <div class="grid-2">
-            <div class="card" style="margin: 0;">
-                <h2 class="card-title">🏋️‍♂️ מחשבון 1RM</h2>
-                <div class="input-group">
-                    <label>משקל (ק"ג):</label>
-                    <input type="number" id="rmWeight" placeholder="למשל: 80">
-                </div>
-                <div class="input-group">
-                    <label>מספר חזרות:</label>
-                    <input type="number" id="rmReps" placeholder="למשל: 6">
-                </div>
-                <button class="btn btn-primary" onclick="calculate1RM()">חשב 1RM</button>
-                <div id="rmResult" class="results-box"></div>
-            </div>
-
-            <div class="card" style="margin: 0;">
-                <h2 class="card-title">💧 מחשבון מים יומי</h2>
-                <div class="input-group">
-                    <label>משקל גוף (ק"ג):</label>
-                    <input type="number" id="waterWeight" placeholder="למשל: 75">
-                </div>
-                <div class="input-group">
-                    <label>דקות אימון ביום:</label>
-                    <input type="number" id="workoutMinutes" placeholder="למשל: 60" value="0">
-                </div>
-                <button class="btn btn-water" onclick="calculateWater()">חשב מים</button>
-                <div id="waterResult" class="results-box" style="border-right-color: var(--water);"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- לשונית 5: היסטוריה וגרף -->
-    <div id="tab-history" class="tab-content">
-        <div class="card" style="margin-bottom: 20px;">
-            <h3 class="card-title">📈 מגמת משקל וקלוריות</h3>
-            <canvas id="progressChart"></canvas>
+        <!-- סרגל לשוניות ניווט נקי -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('nutrition')">🥗 מחשבון תזונה</button>
+            <button class="tab-btn" onclick="switchTab('tracker')">🥑 מעקב ארוחות</button>
+            <button class="tab-btn" onclick="switchTab('workouts')">🏋️‍♂️ תוכניות אימון</button>
+            <button class="tab-btn" onclick="switchTab('calculators')">🔢 מחשבוני עזר</button>
+            <button class="tab-btn" onclick="switchTab('history')">📈 היסטוריה</button>
+            <button class="tab-btn" onclick="switchTab('account')">👤 החשבון שלי</button>
         </div>
 
-        <div class="card">
-            <h3 class="card-title">📜 היסטוריית חישובים</h3>
-            <div class="input-group">
-                <select id="filterGoal" onchange="loadHistory()">
-                    <option value="all">הצג הכל</option>
-                    <option value="muscle">בניית מסת שריר</option>
-                    <option value="fat_loss">חיטוב</option>
-                    <option value="maintenance">שמירה על המשקל</option>
-                </select>
-            </div>
-            
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>משקל</th>
-                            <th>% שומן</th>
-                            <th>קלוריות</th>
-                            <th>חלבון</th>
-                            <th>מחק</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTable"></tbody>
-                </table>
-            </div>
-            
-            <button class="btn btn-primary" style="margin-top: 15px;" onclick="exportToCSV()">📥 הורד היסטוריה (CSV)</button>
-        </div>
-    </div>
-
-    <!-- לשונית 6: החשבון שלי -->
-    <div id="tab-account" class="tab-content">
-        <div class="card">
-            <h2 class="card-title">👤 החשבון שלי</h2>
-
-            <div id="authForms">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <a href="/api/auth/google" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #ffffff; color: #333333; border: 1.5px solid var(--border-color); padding: 12px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; width: 100%; max-width: 320px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s;">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="20" height="20" alt="Google">
-                        התחבר באמצעות Google
-                    </a>
-                </div>
-
-                <div style="text-align: center; margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">— או היכנס עם שם משתמש —</div>
+        <!-- לשונית 1: מחשבון תזונה -->
+        <div id="tab-nutrition" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title">🥗 מחשבון תזונה מתקדם</h2>
 
                 <div class="grid-2">
-                    <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
-                        <h3>🔑 התחברות</h3>
-                        <div class="input-group">
-                            <label>שם משתמש:</label>
-                            <input type="text" id="loginUsername">
+                    <div class="input-group">
+                        <label>משקל (ק"ג):</label>
+                        <input type="number" id="weight" placeholder="למשל: 80">
+                    </div>
+                    <div class="input-group">
+                        <label>גובה (ס"מ):</label>
+                        <input type="number" id="height" placeholder="למשל: 180">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>היקף מותניים (ס"מ): <span style="font-size:11px; color:var(--text-muted);">(רשות)</span></label>
+                        <input type="number" id="waist" placeholder="למשל: 85">
+                    </div>
+                    <div class="input-group">
+                        <label>היקף צוואר (ס"מ): <span style="font-size:11px; color:var(--text-muted);">(רשות)</span></label>
+                        <input type="number" id="neck" placeholder="למשל: 38">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>יעד תזונתי:</label>
+                    <select id="goal">
+                        <option value="muscle">בניית מסת שריר</option>
+                        <option value="fat_loss">חיטוב (ירידה באחוז שומן)</option>
+                        <option value="maintenance">שמירה על המשקל</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-success" onclick="calculate()">חשב תפריט 🚀</button>
+
+                <div class="results-box" id="resultsBox">
+                    <h3 style="margin-top:0;">תוצאות מומלצות:</h3>
+                    <p id="fatBox" style="display:none; color:var(--primary); font-weight: bold;">אחוז שומן מוערך: <span id="bodyFatRes"></span>%</p>
+                    <p style="font-size: 1.1rem;">קלוריות יומיות: <strong id="caloriesRes" style="color:var(--primary);"></strong> קק"ל</p>
+
+                    <ul class="macro-list">
+                        <li><span>חלבון יומי:</span> <strong id="proteinRes"></strong></li>
+                        <li><span>פחמימות יומיות:</span> <strong id="carbsRes"></strong></li>
+                        <li><span>שומנים יומיים:</span> <strong id="fatsRes"></strong></li>
+                    </ul>
+                    <div class="meal-suggestion" id="mealSuggestion"></div>
+
+                    <!-- 🥗 חלק חדש: תפריט תזונה מותאם אישית -->
+                    <hr style="margin: 20px 0 15px 0; border: none; border-top: 1px solid var(--border-color);">
+                    <div class="input-group">
+                        <label>מאכלים שאינך אוהב / רגישויות (אופציונלי):</label>
+                        <input type="text" id="dislikedFoods" placeholder="למשל: דגים, טחינה, מוצרי חלב, חצילים...">
+                    </div>
+                    <button class="btn btn-primary" id="btnGenerateMenu" onclick="generateMenu()">🥗 תפריט תזונה מותאם אישית</button>
+
+                    <div id="personalizedMenuBox" style="display:none; margin-top:15px; padding:16px; background:var(--card-bg); border-right:4px solid var(--primary); border-radius:10px; white-space:pre-wrap; font-size:0.92rem; line-height:1.6; border:1px solid var(--border-color);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- לשונית 2: מעקב ארוחות -->
+        <div id="tab-tracker" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">🥑 יומן ארוחות ומעקב יומי</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 16px;">
+                    רשום מה אכלת היום ועקוב בזמן אמת אחר היעד הקלורי והחלבון שלך.
+                </p>
+
+                <label style="margin-bottom:8px;">בחירה מהירה:</label>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+                    <span class="preset-badge" onclick="setFoodPreset('חזה עוף מבושל', 165, 31)">🍗 חזה עוף (100ג')</span>
+                    <span class="preset-badge" onclick="setFoodPreset('אורז לבן מבושל', 130, 2.7)">🍚 אורז מבושל (100ג')</span>
+                    <span class="preset-badge" onclick="setFoodPreset('ביצה XL', 78, 6.3)">🥚 ביצה XL (יחידה)</span>
+                    <span class="preset-badge" onclick="setFoodPreset('קופסת טונה במים', 120, 26)">🐟 טונה במים (קופסה)</span>
+                    <span class="preset-badge" onclick="setFoodPreset('סקופ אבקת חלבון', 120, 24)">🥤 סקופ חלבון</span>
+                    <span class="preset-badge" onclick="setFoodPreset('שיבולת שועל', 389, 16.9)">🥣 שיבולת שועל (100ג')</span>
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>שם המאכל:</label>
+                        <input type="text" id="foodName" placeholder="למשל: חזה עוף">
+                    </div>
+                    <div class="input-group">
+                        <label>כמות בגרמים / יחידות:</label>
+                        <input type="number" id="foodGrams" placeholder="למשל: 150" value="100">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>קלוריות ל-100 גרם:</label>
+                        <input type="number" id="foodCals100" placeholder="למשל: 165">
+                    </div>
+                    <div class="input-group">
+                        <label>חלבון (גרם) ל-100 גרם:</label>
+                        <input type="number" id="foodProtein100" placeholder="למשל: 31">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="addFoodItem()">הוסף ארוחה ➕</button>
+
+                <div style="margin-top: 24px; padding: 16px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color);">
+                    <h3 style="margin-top:0;">📊 סיכום צריכה להיום</h3>
+
+                    <div style="margin-bottom: 12px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                            <span>קלוריות: <strong id="trackerCalsCurrent">0</strong> / <span id="trackerCalsTarget">2000</span> קק"ל</span>
+                            <strong id="trackerCalsPercent">0%</strong>
                         </div>
-                        <div class="input-group">
-                            <label>סיסמה:</label>
-                            <input type="password" id="loginPassword">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="calsProgressBar"></div>
                         </div>
-                        <button class="btn btn-primary" onclick="login()">התחבר 🔓</button>
                     </div>
 
-                    <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
-                        <h3>📝 הרשמה לחשבון חדש</h3>
-                        <div class="input-group">
-                            <label>שם משתמש חדש:</label>
-                            <input type="text" id="regUsername">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+                            <span>חלבון: <strong id="trackerProteinCurrent">0</strong> / <span id="trackerProteinTarget">150</span> גרם</span>
+                            <strong id="trackerProteinPercent">0%</strong>
                         </div>
-                        <div class="input-group">
-                            <label>סיסמה:</label>
-                            <input type="password" id="regPassword">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="proteinProgressBar" style="background: var(--primary);"></div>
                         </div>
-                        <button class="btn btn-success" onclick="register()">צור חשבון ✨</button>
                     </div>
+                </div>
+
+                <div style="overflow-x: auto; margin-top: 15px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>מאכל</th>
+                                <th>כמות</th>
+                                <th>קלוריות</th>
+                                <th>חלבון</th>
+                                <th>מחק</th>
+                            </tr>
+                        </thead>
+                        <tbody id="foodTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- לשונית 3: מחולל תוכניות אימון + טיימר -->
+        <div id="tab-workouts" class="tab-content">
+            <div class="card" style="margin-bottom: 20px; border-right: 4px solid var(--water);">
+                <h2 class="card-title">⏱️ טיימר מנוחה בין סטים</h2>
+
+                <div class="timer-display" id="timerDisplay">01:00</div>
+
+                <div class="timer-presets">
+                    <button class="timer-btn" onclick="startTimer(30)">30 שניות</button>
+                    <button class="timer-btn" onclick="startTimer(60)">60 שניות</button>
+                    <button class="timer-btn" onclick="startTimer(90)">90 שניות</button>
+                    <button class="timer-btn" onclick="startTimer(120)">2 דקות</button>
+                    <button class="timer-btn" onclick="startTimer(180)">3 דקות</button>
+                </div>
+
+                <div class="grid-2">
+                    <button class="btn btn-water" onclick="togglePauseTimer()">השהה / המשך ⏯️</button>
+                    <button class="btn btn-danger" onclick="resetTimer()">אפס טיימר ⏹️</button>
                 </div>
             </div>
 
-            <div id="userLoggedInView" style="display: none; text-align: center; padding: 20px;">
-                <h3 style="color: var(--success); font-size: 1.5rem;">שלום, <span id="accountUsername"></span>! 👋</h3>
-                <p style="color: var(--text-muted);">אתה מחובר כעת. כל הנתונים, ההיסטוריה והיומן שלך מסונכרנים לענן.</p>
-                <button class="btn btn-danger" style="max-width: 200px; margin-top: 15px;" onclick="logout()">התנתק 🚪</button>
+            <div class="card">
+                <h2 class="card-title">🎯 מחולל תוכניות אימונים מותאם אישית</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -8px; margin-bottom: 20px;">
+                    בחר את הנתונים שלך וקבל תוכנית אימונים מפורטת ומותאמת אישית.
+                </p>
+
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>מטרת האימון:</label>
+                        <select id="workoutGoal">
+                            <option value="hypertrophy">גדילת מסת שריר (היפרטרופיה)</option>
+                            <option value="strength">חיזוק וכוח מרבי</option>
+                            <option value="fat_loss">חיטוב וסיבולת</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>ימי אימון בשבוע:</label>
+                        <select id="workoutDays">
+                            <option value="3">3 ימים בשבוע (Full Body - FBW)</option>
+                            <option value="4">4 ימים בשבוע (A/B - עליון/תחתון)</option>
+                            <option value="5">5-6 ימים בשבוע (Push / Pull / Legs)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>ציוד זמין:</label>
+                    <select id="workoutEquip">
+                        <option value="gym">חדר כושר מלא</option>
+                        <option value="home_dumbbells">אימון ביתי (משקולות יד/רצועות)</option>
+                        <option value="calisthenics">משקל גוף בלבד (קליסטניקס)</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="generateWorkoutPlan()">צור תוכנית אימונים 🎯</button>
+
+                <div id="workoutResult" class="results-box" style="margin-top: 20px; border-right-color: var(--primary);"></div>
             </div>
         </div>
+
+        <!-- לשונית 4: מחשבוני עזר -->
+        <div id="tab-calculators" class="tab-content">
+            <div class="grid-2">
+                <div class="card" style="margin: 0;">
+                    <h2 class="card-title">🏋️‍♂️ מחשבון 1RM</h2>
+                    <div class="input-group">
+                        <label>משקל (ק"ג):</label>
+                        <input type="number" id="rmWeight" placeholder="למשל: 80">
+                    </div>
+                    <div class="input-group">
+                        <label>מספר חזרות:</label>
+                        <input type="number" id="rmReps" placeholder="למשל: 6">
+                    </div>
+                    <button class="btn btn-primary" onclick="calculate1RM()">חשב 1RM</button>
+                    <div id="rmResult" class="results-box"></div>
+                </div>
+
+                <div class="card" style="margin: 0;">
+                    <h2 class="card-title">💧 מחשבון מים יומי</h2>
+                    <div class="input-group">
+                        <label>משקל גוף (ק"ג):</label>
+                        <input type="number" id="waterWeight" placeholder="למשל: 75">
+                    </div>
+                    <div class="input-group">
+                        <label>דקות אימון ביום:</label>
+                        <input type="number" id="workoutMinutes" placeholder="למשל: 60" value="0">
+                    </div>
+                    <button class="btn btn-water" onclick="calculateWater()">חשב מים</button>
+                    <div id="waterResult" class="results-box" style="border-right-color: var(--water);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- לשונית 5: היסטוריה וגרף -->
+        <div id="tab-history" class="tab-content">
+            <div class="card" style="margin-bottom: 20px;">
+                <h3 class="card-title">📈 מגמת משקל וקלוריות</h3>
+                <canvas id="progressChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">📜 היסטוריית חישובים</h3>
+                <div class="input-group">
+                    <select id="filterGoal" onchange="loadHistory()">
+                        <option value="all">הצג הכל</option>
+                        <option value="muscle">בניית מסת שריר</option>
+                        <option value="fat_loss">חיטוב</option>
+                        <option value="maintenance">שמירה על המשקל</option>
+                    </select>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>משקל</th>
+                                <th>% שומן</th>
+                                <th>קלוריות</th>
+                                <th>חלבון</th>
+                                <th>מחק</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 15px;" onclick="exportToCSV()">📥 הורד היסטוריה (CSV)</button>
+            </div>
+        </div>
+
+        <!-- לשונית 6: החשבון שלי -->
+        <div id="tab-account" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">👤 החשבון שלי</h2>
+
+                <div id="authForms">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <a href="/api/auth/google" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: #ffffff; color: #333333; border: 1.5px solid var(--border-color); padding: 12px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; width: 100%; max-width: 320px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="20" height="20" alt="Google">
+                            התחבר באמצעות Google
+                        </a>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">— או היכנס עם שם משתמש —</div>
+
+                    <div class="grid-2">
+                        <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
+                            <h3>🔑 התחברות</h3>
+                            <div class="input-group">
+                                <label>שם משתמש:</label>
+                                <input type="text" id="loginUsername">
+                            </div>
+                            <div class="input-group">
+                                <label>סיסמה:</label>
+                                <input type="password" id="loginPassword">
+                            </div>
+                            <button class="btn btn-primary" onclick="login()">התחבר 🔓</button>
+                        </div>
+
+                        <div style="padding: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--card-bg);">
+                            <h3>📝 הרשמה לחשבון חדש</h3>
+                            <div class="input-group">
+                                <label>שם משתמש חדש:</label>
+                                <input type="text" id="regUsername">
+                            </div>
+                            <div class="input-group">
+                                <label>סיסמה:</label>
+                                <input type="password" id="regPassword">
+                            </div>
+                            <button class="btn btn-success" onclick="register()">צור חשבון ✨</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="userLoggedInView" style="display: none; text-align: center; padding: 20px;">
+                    <h3 style="color: var(--success); font-size: 1.5rem;">שלום, <span id="accountUsername"></span>! 👋</h3>
+                    <p style="color: var(--text-muted);">אתה מחובר כעת. כל הנתונים, ההיסטוריה והיומן שלך מסונכרנים לענן.</p>
+                    <button class="btn btn-danger" style="max-width: 200px; margin-top: 15px;" onclick="logout()">התנתק 🚪</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-</div>
+    <!-- כפתור ווידג'ט צ'אט צף בפינה -->
+    <button class="ai-fab-btn" onclick="toggleAiChat()">
+        <span>💬</span>
+        <span>ייעוץ ותמיכה</span>
+    </button>
 
-<!-- כפתור ווידג'ט צ'אט צף בפינה -->
-<button class="ai-fab-btn" onclick="toggleAiChat()">
-    <span>💬</span>
-    <span>ייעוץ ותמיכה</span>
-</button>
+    <!-- חלון הצ'אט הקופץ -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <span>💬 ייעוץ תזונתי ואישי</span>
+            <button class="ai-chat-close" onclick="toggleAiChat()">✖</button>
+        </div>
 
-<!-- חלון הצ'אט הקופץ -->
-<div class="ai-chat-window" id="aiChatWindow">
-    <div class="ai-chat-header">
-        <span>💬 ייעוץ תזונתי ואישי</span>
-        <button class="ai-chat-close" onclick="toggleAiChat()">✖</button>
-    </div>
-    
-    <div id="chatHistory" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;">
-        <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:10px 14px; border-radius:12px; align-self:flex-start; max-width:85%; font-size:0.9rem;">
-            👋 שלום! במה אוכל לעזור לך היום בדרך להשגת היעדים שלך?
+        <div id="chatHistory" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px;">
+            <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:10px 14px; border-radius:12px; align-self:flex-start; max-width:85%; font-size:0.9rem;">
+                👋 שלום! במה אוכל לעזור לך היום בדרך להשגת היעדים שלך?
+            </div>
+        </div>
+
+        <div style="padding:10px; border-top:1px solid var(--border-color); background:var(--card-bg); display:flex; gap:8px;">
+            <input type="text" id="aiInput" placeholder="שאל שאלה..." onkeypress="if(event.key==='Enter') sendAiMessage()" style="font-size:0.88rem; padding:8px 12px;">
+            <button class="btn btn-primary" onclick="sendAiMessage()" style="width:auto; margin:0; padding:8px 14px; font-size:0.88rem;">🚀</button>
         </div>
     </div>
 
-    <div style="padding:10px; border-top:1px solid var(--border-color); background:var(--card-bg); display:flex; gap:8px;">
-        <input type="text" id="aiInput" placeholder="שאל שאלה..." onkeypress="if(event.key==='Enter') sendAiMessage()" style="font-size:0.88rem; padding:8px 12px;">
-        <button class="btn btn-primary" onclick="sendAiMessage()" style="width:auto; margin:0; padding:8px 14px; font-size:0.88rem;">🚀</button>
-    </div>
-</div>
+    <script>
+        let lastCalcData = null;
 
-<script>
-    let lastCalcData = null;
-
-    // פתיחה/סגירה של הצ'אט הצף
-    function toggleAiChat() {
-        const win = document.getElementById('aiChatWindow');
-        win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    // ניהול לשוניות
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-        document.getElementById(`tab-${tabName}`).classList.add('active');
-        event.currentTarget.classList.add('active');
-
-        if (tabName === 'history') loadHistory();
-    }
-
-    // ניהול Dark Mode
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeBtn(newTheme);
-    }
-
-    function updateThemeBtn(theme) {
-        const btn = document.getElementById('themeBtn');
-        btn.innerHTML = theme === 'dark' ? '☀️ מצב יום' : '🌙 מצב לילה';
-    }
-
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    window.addEventListener('DOMContentLoaded', () => {
-        updateThemeBtn(savedTheme);
-        checkAuth();
-    });
-
-    let progressChart = null;
-    let currentHistoryData = [];
-    let foodList = JSON.parse(localStorage.getItem('dailyFoodList') || '[]');
-    let targetCalories = 2000;
-    let targetProtein = 150;
-
-    // ניהול משתמשים (Auth)
-    async function checkAuth() {
-        try {
-            const res = await fetch('/api/me');
-            const data = await res.json();
-            if (data.loggedIn) {
-                document.getElementById('authForms').style.display = 'none';
-                document.getElementById('userLoggedInView').style.display = 'block';
-                document.getElementById('accountUsername').innerText = data.username;
-                document.getElementById('userGreeting').innerText = `שלום, ${data.username}`;
-            } else {
-                document.getElementById('authForms').style.display = 'block';
-                document.getElementById('userLoggedInView').style.display = 'none';
-                document.getElementById('userGreeting').innerText = '';
-            }
-        } catch (e) {
-            console.error("שגיאה בבדיקת התחברות", e);
+        // פתיחה/סגירה של הצ'אט הצף
+        function toggleAiChat() {
+            const win = document.getElementById('aiChatWindow');
+            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
         }
-    }
 
-    async function register() {
-        const username = document.getElementById('regUsername').value;
-        const password = document.getElementById('regPassword').value;
-        const res = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+        // ניהול לשוניות
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if (tabName === 'history') loadHistory();
+        }
+
+        // ניהול Dark Mode
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeBtn(newTheme);
+        }
+
+        function updateThemeBtn(theme) {
+            const btn = document.getElementById('themeBtn');
+            btn.innerHTML = theme === 'dark' ? '☀️ מצב יום' : '🌙 מצב לילה';
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        window.addEventListener('DOMContentLoaded', () => {
+            updateThemeBtn(savedTheme);
+            checkAuth();
         });
-        const data = await res.json();
-        if (!res.ok) return alert(`שגיאה: ${data.error}`);
-        alert('הרשמה בוצעה בהצלחה!');
-        checkAuth();
-    }
 
-    async function login() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (!res.ok) return alert(`שגיאה: ${data.error}`);
-        alert('התחברת בהצלחה!');
-        checkAuth();
-        loadHistory();
-    }
+        let progressChart = null;
+        let currentHistoryData = [];
+        let foodList = JSON.parse(localStorage.getItem('dailyFoodList') || '[]');
+        let targetCalories = 2000;
+        let targetProtein = 150;
 
-    async function logout() {
-        await fetch('/api/logout', { method: 'POST' });
-        checkAuth();
-        loadHistory();
-    }
+        // ניהול משתמשים (Auth)
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/me');
+                const data = await res.json();
+                if (data.loggedIn) {
+                    document.getElementById('authForms').style.display = 'none';
+                    document.getElementById('userLoggedInView').style.display = 'block';
+                    document.getElementById('accountUsername').innerText = data.username;
+                    document.getElementById('userGreeting').innerText = `שלום, ${data.username}`;
+                } else {
+                    document.getElementById('authForms').style.display = 'block';
+                    document.getElementById('userLoggedInView').style.display = 'none';
+                    document.getElementById('userGreeting').innerText = '';
+                }
+            } catch (e) {
+                console.error("שגיאה בבדיקת התחברות", e);
+            }
+        }
 
-    // ניהול צ'אט תמיכה
-    async function sendAiMessage() {
-        const input = document.getElementById('aiInput');
-        const chatHistory = document.getElementById('chatHistory');
-        const message = input.value.trim();
-
-        if (!message) return;
-
-        chatHistory.innerHTML += `
-            <div style="background:var(--primary); color:white; padding:8px 12px; border-radius:12px; align-self:flex-end; max-width:85%; font-size:0.9rem; text-align:right;">
-                ${message}
-            </div>
-        `;
-        
-        input.value = '';
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-
-        const loadingId = 'loading-' + Date.now();
-        chatHistory.innerHTML += `
-            <div id="${loadingId}" style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 12px; border-radius:12px; align-self:flex-start; opacity:0.8; font-size:0.85rem;">
-                מכין תשובה... ⏳
-            </div>
-        `;
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-
-        try {
-            const res = await fetch('/api/ai-chat', {
+        async function register() {
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (!res.ok) return alert(`שגיאה: ${data.error}`);
+            alert('הרשמה בוצעה בהצלחה!');
+            checkAuth();
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (!res.ok) return alert(`שגיאה: ${data.error}`);
+            alert('התחברת בהצלחה!');
+            checkAuth();
+            loadHistory();
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            checkAuth();
+            loadHistory();
+        }
+
+        // ניהול צ'אט תמיכה
+        async function sendAiMessage() {
+            const input = document.getElementById('aiInput');
+            const chatHistory = document.getElementById('chatHistory');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            chatHistory.innerHTML += `
+                <div style="background:var(--primary); color:white; padding:8px 12px; border-radius:12px; align-self:flex-end; max-width:85%; font-size:0.9rem; text-align:right;">
+                    ${message}
+                </div>
+            `;
+
+            input.value = '';
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            const loadingId = 'loading-' + Date.now();
+            chatHistory.innerHTML += `
+                <div id="${loadingId}" style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 12px; border-radius:12px; align-self:flex-start; opacity:0.8; font-size:0.85rem;">
+                    מכין תשובה... ⏳
+                </div>
+            `;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            try {
+                const res = await fetch('/api/ai-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await res.json();
+                const loadingElem = document.getElementById(loadingId);
+                if (loadingElem) loadingElem.remove();
+
+                if (data.reply) {
+                    chatHistory.innerHTML += `
+                        <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 12px; border-radius:12px; align-self:flex-start; max-width:85%; font-size:0.9rem;">
+                            ${data.reply.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                } else {
+                    chatHistory.innerHTML += `<div style="color:#ef4444; align-self:center; font-size:0.85rem;">שגיאה בקבלת תשובה.</div>`;
+                }
+            } catch (err) {
+                const loadingElem = document.getElementById(loadingId);
+                if (loadingElem) loadingElem.remove();
+                chatHistory.innerHTML += `<div style="color:#ef4444; align-self:center; font-size:0.85rem;">שגיאת תקשורת עם השרת.</div>`;
+            }
+
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        // ניהול טיימר
+        let timerInterval = null;
+        let timerTimeLeft = 60;
+        let isTimerPaused = false;
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').innerText = formatTime(timerTimeLeft);
+        }
+
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            timerTimeLeft = seconds;
+            isTimerPaused = false;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                if (!isTimerPaused) {
+                    timerTimeLeft--;
+                    updateTimerDisplay();
+
+                    if (timerTimeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        onTimerFinished();
+                    }
+                }
+            }, 1000);
+        }
+
+        function togglePauseTimer() {
+            if (timerTimeLeft > 0) isTimerPaused = !isTimerPaused;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerTimeLeft = 60;
+            isTimerPaused = false;
+            updateTimerDisplay();
+        }
+
+        function onTimerFinished() {
+            if ("vibrate" in navigator) navigator.vibrate([300, 100, 300, 100, 400]);
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            } catch (e) { }
+            alert("⏱️ המנוחה הסתיימה! חזור לסט הבא 🔥");
+        }
+
+        // ניהול Food Tracker
+        function setFoodPreset(name, cals100, protein100) {
+            document.getElementById('foodName').value = name;
+            document.getElementById('foodCals100').value = cals100;
+            document.getElementById('foodProtein100').value = protein100;
+        }
+
+        function addFoodItem() {
+            const name = document.getElementById('foodName').value.trim();
+            const grams = parseFloat(document.getElementById('foodGrams').value);
+            const cals100 = parseFloat(document.getElementById('foodCals100').value);
+            const protein100 = parseFloat(document.getElementById('foodProtein100').value);
+
+            if (!name || !grams || isNaN(cals100) || isNaN(protein100)) return alert('אנא מלא את כל פרטי המאכל');
+
+            const totalCals = Math.round((cals100 * grams) / 100);
+            const totalProtein = Math.round(((protein100 * grams) / 100) * 10) / 10;
+
+            foodList.push({ id: Date.now(), name, grams, cals: totalCals, protein: totalProtein });
+            localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
+            document.getElementById('foodName').value = '';
+            renderFoodList();
+        }
+
+        function removeFoodItem(id) {
+            foodList = foodList.filter(item => item.id !== id);
+            localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
+            renderFoodList();
+        }
+
+        function renderFoodList() {
+            const tbody = document.getElementById('foodTableBody');
+            tbody.innerHTML = '';
+            let totalCals = 0;
+            let totalProtein = 0;
+
+            foodList.forEach(item => {
+                totalCals += item.cals;
+                totalProtein += item.protein;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.grams}ג'</td>
+                        <td>${item.cals} קק"ל</td>
+                        <td>${item.protein}ג'</td>
+                        <td><button class="delete-btn" onclick="removeFoodItem(${item.id})">✖</button></td>
+                    </tr>
+                `;
             });
 
-            const data = await res.json();
-            const loadingElem = document.getElementById(loadingId);
-            if (loadingElem) loadingElem.remove();
+            document.getElementById('trackerCalsCurrent').innerText = totalCals;
+            document.getElementById('trackerProteinCurrent').innerText = totalProtein.toFixed(1);
 
-            if (data.reply) {
-                chatHistory.innerHTML += `
-                    <div style="background:var(--card-bg); border:1px solid var(--border-color); padding:8px 12px; border-radius:12px; align-self:flex-start; max-width:85%; font-size:0.9rem;">
-                        ${data.reply.replace(/\n/g, '<br>')}
+            const calsPercent = Math.min(100, Math.round((totalCals / targetCalories) * 100));
+            const proteinPercent = Math.min(100, Math.round((totalProtein / targetProtein) * 100));
+
+            document.getElementById('trackerCalsPercent').innerText = `${calsPercent}%`;
+            document.getElementById('trackerProteinPercent').innerText = `${proteinPercent}%`;
+            document.getElementById('calsProgressBar').style.width = `${calsPercent}%`;
+            document.getElementById('proteinProgressBar').style.width = `${proteinPercent}%`;
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const labels = data.map((item, index) => `#${index + 1}`);
+            const weights = data.map(item => item.weight);
+            const calories = data.map(item => item.calories);
+
+            if (progressChart) progressChart.destroy();
+
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'משקל (ק"ג)', data: weights, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', yAxisID: 'yWeight', tension: 0.3, fill: true },
+                        { label: 'קלוריות', data: calories, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', yAxisID: 'yCalories', tension: 0.3, fill: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        yWeight: { type: 'linear', position: 'left', title: { display: true, text: 'ק"ג' } },
+                        yCalories: { type: 'linear', position: 'right', title: { display: true, text: 'קק"ל' }, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+
+        async function loadHistory() {
+            try {
+                const goalFilter = document.getElementById('filterGoal').value;
+                const response = await fetch(`/api/history?goal=${goalFilter}`);
+                const rows = await response.json();
+                currentHistoryData = rows;
+
+                const tbody = document.getElementById('historyTable');
+                tbody.innerHTML = '';
+                rows.forEach(r => {
+                    tbody.innerHTML += `<tr>
+                        <td>${r.weight} ק"ג</td>
+                        <td>${r.body_fat ? r.body_fat + '%' : '-'}</td>
+                        <td>${r.calories}</td>
+                        <td>${r.protein}ג'</td>
+                        <td><button class="delete-btn" onclick="deleteItem(${r.id})">✖</button></td>
+                    </tr>`;
+                });
+
+                renderChart(rows);
+            } catch (e) {
+                console.error("שגיאה בטעינת היסטוריה:", e);
+            }
+        }
+
+        async function deleteItem(id) {
+            await fetch(`/api/history/${id}`, { method: 'DELETE' });
+            loadHistory();
+        }
+
+        async function calculate() {
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('height').value;
+            const waist = document.getElementById('waist').value;
+            const neck = document.getElementById('neck').value;
+            const goal = document.getElementById('goal').value;
+
+            const payload = { weight: Number(weight), height: Number(height), goal: goal };
+            if (waist) payload.waist = Number(waist);
+            if (neck) payload.neck = Number(neck);
+
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (!response.ok) return alert(`שגיאה: ${data.error}`);
+
+            lastCalcData = data;
+
+            if (data.bodyFatPercentage) {
+                document.getElementById('bodyFatRes').innerText = data.bodyFatPercentage;
+                document.getElementById('fatBox').style.display = 'block';
+            } else {
+                document.getElementById('fatBox').style.display = 'none';
+            }
+
+            document.getElementById('caloriesRes').innerText = data.recommendedCalories;
+            document.getElementById('proteinRes').innerText = `${data.dailyProteinGrams} גרם`;
+            document.getElementById('carbsRes').innerText = `${data.dailyCarbGrams} גרם`;
+            document.getElementById('fatsRes').innerText = `${data.dailyFatGrams} גרם`;
+
+            targetCalories = data.recommendedCalories;
+            targetProtein = data.dailyProteinGrams;
+            document.getElementById('trackerCalsTarget').innerText = targetCalories;
+            document.getElementById('trackerProteinTarget').innerText = targetProtein;
+            renderFoodList();
+
+            const proteinPerMeal = Math.round(data.dailyProteinGrams / 4);
+            document.getElementById('mealSuggestion').innerText = `💡 מומלץ לחלק ל-4 ארוחות ביום: כ-${proteinPerMeal} גרם חלבון בכל ארוחה.`;
+            document.getElementById('resultsBox').style.display = 'block';
+        }
+
+        // פונקציית בניית תפריט תזונה מותאם אישית
+        async function generateMenu() {
+            if (!lastCalcData) {
+                alert('אנא בצע חישוב במחשבון התזונה תחילה');
+                return;
+            }
+
+            const btn = document.getElementById('btnGenerateMenu');
+            const box = document.getElementById('personalizedMenuBox');
+            const weight = document.getElementById('weight').value;
+            const goal = document.getElementById('goal').value;
+            const dislikedFoods = document.getElementById('dislikedFoods').value;
+
+            btn.disabled = true;
+            btn.innerText = 'מפיק תפריט מותאם אישית... ⏳';
+            box.style.display = 'block';
+            box.innerText = 'מחשב ומפיק עבורך תפריט יומי עשיר ומפורט לפי היעדים וההעדפות...';
+
+            try {
+                const res = await fetch('/api/generate-menu', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        weight: weight,
+                        goal: goal,
+                        calories: lastCalcData.recommendedCalories,
+                        protein: lastCalcData.dailyProteinGrams,
+                        dislikedFoods: dislikedFoods
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    box.innerText = data.menu;
+                } else {
+                    box.innerText = 'שגיאה: ' + (data.error || 'נסה שוב מאוחר יותר');
+                }
+            } catch (e) {
+                box.innerText = 'שגיאה בתקשורת מול השרת.';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '🥗 תפריט תזונה מותאם אישית';
+            }
+        }
+
+        function calculate1RM() {
+            const weight = parseFloat(document.getElementById('rmWeight').value);
+            const reps = parseInt(document.getElementById('rmReps').value);
+            if (!weight || !reps || weight <= 0 || reps <= 0) return alert('אנא הזן נתונים תקינים');
+
+            const oneRM = reps === 1 ? weight : Math.round(weight * (1 + reps / 30));
+            const resultDiv = document.getElementById('rmResult');
+            resultDiv.style.display = 'block';
+
+            resultDiv.innerHTML = `
+                <div><strong>1RM משוער: <span style="color: var(--primary);">${oneRM} ק"ג</span> 🔥</strong></div>
+                <div style="font-size:0.85rem; margin-top:8px;">
+                    90% (3-5 חזרות): <strong>${Math.round(oneRM * 0.9)} ק"ג</strong><br>
+                    80% (8-10 חזרות): <strong>${Math.round(oneRM * 0.8)} ק"ג</strong><br>
+                    70% (12-15 חזרות): <strong>${Math.round(oneRM * 0.7)} ק"ג</strong>
+                </div>
+            `;
+        }
+
+        function calculateWater() {
+            const weight = parseFloat(document.getElementById('waterWeight').value);
+            const workoutMins = parseFloat(document.getElementById('workoutMinutes').value) || 0;
+            if (!weight || weight <= 0) return alert('אנא הזן משקל תקין');
+
+            const totalLiters = ((weight * 0.035) + ((workoutMins / 30) * 0.35)).toFixed(1);
+            const totalGlasses = Math.round(totalLiters * 1000 / 250);
+
+            const resultDiv = document.getElementById('waterResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div><strong>צריכה מומלצת: <span style="color: var(--water);">${totalLiters} ליטר</span> 💧</strong></div>
+                <div style="font-size:0.85rem; margin-top:4px;">כ-<strong>${totalGlasses} כוסות מים</strong> ביום.</div>
+            `;
+        }
+
+        function generateWorkoutPlan() {
+            const goal = document.getElementById('workoutGoal').value;
+            const days = document.getElementById('workoutDays').value;
+            const equip = document.getElementById('workoutEquip').value;
+
+            const resultDiv = document.getElementById('workoutResult');
+            resultDiv.style.display = 'block';
+
+            let repsText = "8-12 חזרות (מנוחה 60-90 שניות)";
+            if (goal === 'strength') repsText = "4-6 חזרות (מנוחה 2-3 דקות)";
+            if (goal === 'fat_loss') repsText = "12-15 חזרות (מנוחה 45-60 שניות)";
+
+            let htmlContent = `<h3 style="margin-top:0; color:var(--primary);">📋 תוכנית האימונים המומלצת שלך</h3>`;
+            htmlContent += `<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px;">טווח חזרות מומלץ: <strong>${repsText}</strong></p>`;
+
+            if (days === "3") {
+                htmlContent += `
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                            <strong style="color:var(--primary);">אימון FBW — אימון גוף מלא (שלוש פעמים בשבוע)</strong>
+                            <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
+                                ${equip === 'gym' ? `
+                                    <li>סקוואט עם מוט / לחיצת רגליים: 3 סטים</li>
+                                    <li>לחיצת חזה כנגד מוט / משקולות: 3 סטים</li>
+                                    <li>פולי עליון / מתח: 3 סטים</li>
+                                    <li>לחיצת כתפיים עם משקולות: 3 סטים</li>
+                                    <li>כפילת מרפקים לביספס + פשיטת מרפקים: 2 סטים כל אחד</li>
+                                ` : `
+                                    <li>סקוואט כנגד משקל גוף / משקולות: 4 סטים</li>
+                                    <li>שכיבות סמיכה / לחיצה: 4 סטים</li>
+                                    <li>חתירה עם רצועות / משקולות יד: 4 סטים</li>
+                                    <li>לחיצת כתפיים בעמידה: 3 סטים</li>
+                                    <li>פלאנק לבטן: 3 סטים (45 שניות)</li>
+                                `}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else if (days === "4") {
+                htmlContent += `
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                            <strong style="color:var(--primary);">אימון A — פלג גוף עליון (Upper Body)</strong>
+                            <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
+                                <li>לחיצת חזה בשכיבה: 4 סטים</li>
+                                <li>חתירה בהטיית גו / פולי תחתון: 4 סטים</li>
+                                <li>לחיצת כתפיים: 3 סטים</li>
+                                <li>הרחקת זרועות לצדדים: 3 סטים</li>
+                                <li>סופר-סט זרועות (יד קדמית + יד אחורית): 3 סטים</li>
+                            </ul>
+                        </div>
+                        <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                            <strong style="color:var(--success);">אימון B — פלג גוף תחתון + בטן (Lower Body)</strong>
+                            <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
+                                <li>סקוואט חופשי / מכרעים: 4 סטים</li>
+                                <li>דדליפט רומני (RDL): 3 סטים</li>
+                                <li>מכשיר פשיטת ברכיים: 3 סטים</li>
+                                <li>תאומים בעמידה: 4 סטים</li>
+                                <li>הרמת רגליים / בטן: 3 סטים</li>
+                            </ul>
+                        </div>
                     </div>
                 `;
             } else {
-                chatHistory.innerHTML += `<div style="color:#ef4444; align-self:center; font-size:0.85rem;">שגיאה בקבלת תשובה.</div>`;
+                htmlContent += `
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                            <strong style="color:var(--primary);">יום 1: Push (חזה, כתפיים, יד אחורית)</strong>
+                            <p style="margin:4px 0 0 0; font-size:0.85rem;">לחיצת חזה (4 סטים), לחיצה בשיפוע חיובי (3 סטים), לחיצת כתפיים (3 סטים), הרחקת זרועות (3 סטים), פשיטת מרפקים לטריספס (3 סטים).</p>
+                        </div>
+                        <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                            <strong style="color:var(--water);">יום 2: Pull (גב, כתף אחורית, יד קדמית)</strong>
+                            <p style="margin:4px 0 0 0; font-size:0.85rem;">מתח / פולי עליון (4 סטים), חתירה במוט (3 סטים), פול-אובר (3 סטים), פרפר הפוך לכתף אחורית (3 סטים), כפילת מרפקים לביספס (4 סטים).</p>
+                        </div>
+                        <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+                            <strong style="color:var(--success);">יום 3: Legs (רגליים ובטן)</strong>
+                            <p style="margin:4px 0 0 0; font-size:0.85rem;">סקוואט (4 סטים), מכרעים (3 סטים), פשיטת ברכיים (3 סטים), כפילת ברכיים (3 סטים), תאומים + בטן (4 סטים).</p>
+                        </div>
+                    </div>
+                `;
             }
-        } catch (err) {
-            const loadingElem = document.getElementById(loadingId);
-            if (loadingElem) loadingElem.remove();
-            chatHistory.innerHTML += `<div style="color:#ef4444; align-self:center; font-size:0.85rem;">שגיאת תקשורת עם השרת.</div>`;
+
+            resultDiv.innerHTML = htmlContent;
         }
 
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    // ניהול טיימר
-    let timerInterval = null;
-    let timerTimeLeft = 60;
-    let isTimerPaused = false;
-
-    function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function updateTimerDisplay() {
-        document.getElementById('timerDisplay').innerText = formatTime(timerTimeLeft);
-    }
-
-    function startTimer(seconds) {
-        clearInterval(timerInterval);
-        timerTimeLeft = seconds;
-        isTimerPaused = false;
-        updateTimerDisplay();
-
-        timerInterval = setInterval(() => {
-            if (!isTimerPaused) {
-                timerTimeLeft--;
-                updateTimerDisplay();
-
-                if (timerTimeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    onTimerFinished();
-                }
-            }
-        }, 1000);
-    }
-
-    function togglePauseTimer() {
-        if (timerTimeLeft > 0) isTimerPaused = !isTimerPaused;
-    }
-
-    function resetTimer() {
-        clearInterval(timerInterval);
-        timerTimeLeft = 60;
-        isTimerPaused = false;
-        updateTimerDisplay();
-    }
-
-    function onTimerFinished() {
-        if ("vibrate" in navigator) navigator.vibrate([300, 100, 300, 100, 400]);
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.8);
-        } catch (e) {}
-        alert("⏱️ המנוחה הסתיימה! חזור לסט הבא 🔥");
-    }
-
-    // ניהול Food Tracker
-    function setFoodPreset(name, cals100, protein100) {
-        document.getElementById('foodName').value = name;
-        document.getElementById('foodCals100').value = cals100;
-        document.getElementById('foodProtein100').value = protein100;
-    }
-
-    function addFoodItem() {
-        const name = document.getElementById('foodName').value.trim();
-        const grams = parseFloat(document.getElementById('foodGrams').value);
-        const cals100 = parseFloat(document.getElementById('foodCals100').value);
-        const protein100 = parseFloat(document.getElementById('foodProtein100').value);
-
-        if (!name || !grams || isNaN(cals100) || isNaN(protein100)) return alert('אנא מלא את כל פרטי המאכל');
-
-        const totalCals = Math.round((cals100 * grams) / 100);
-        const totalProtein = Math.round(((protein100 * grams) / 100) * 10) / 10;
-
-        foodList.push({ id: Date.now(), name, grams, cals: totalCals, protein: totalProtein });
-        localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
-        document.getElementById('foodName').value = '';
-        renderFoodList();
-    }
-
-    function removeFoodItem(id) {
-        foodList = foodList.filter(item => item.id !== id);
-        localStorage.setItem('dailyFoodList', JSON.stringify(foodList));
-        renderFoodList();
-    }
-
-    function renderFoodList() {
-        const tbody = document.getElementById('foodTableBody');
-        tbody.innerHTML = '';
-        let totalCals = 0;
-        let totalProtein = 0;
-
-        foodList.forEach(item => {
-            totalCals += item.cals;
-            totalProtein += item.protein;
-            tbody.innerHTML += `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.grams}ג'</td>
-                    <td>${item.cals} קק"ל</td>
-                    <td>${item.protein}ג'</td>
-                    <td><button class="delete-btn" onclick="removeFoodItem(${item.id})">✖</button></td>
-                </tr>
-            `;
-        });
-
-        document.getElementById('trackerCalsCurrent').innerText = totalCals;
-        document.getElementById('trackerProteinCurrent').innerText = totalProtein.toFixed(1);
-
-        const calsPercent = Math.min(100, Math.round((totalCals / targetCalories) * 100));
-        const proteinPercent = Math.min(100, Math.round((totalProtein / targetProtein) * 100));
-
-        document.getElementById('trackerCalsPercent').innerText = `${calsPercent}%`;
-        document.getElementById('trackerProteinPercent').innerText = `${proteinPercent}%`;
-        document.getElementById('calsProgressBar').style.width = `${calsPercent}%`;
-        document.getElementById('proteinProgressBar').style.width = `${proteinPercent}%`;
-    }
-
-    function renderChart(data) {
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        const labels = data.map((item, index) => `#${index + 1}`);
-        const weights = data.map(item => item.weight);
-        const calories = data.map(item => item.calories);
-
-        if (progressChart) progressChart.destroy();
-
-        progressChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'משקל (ק"ג)', data: weights, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', yAxisID: 'yWeight', tension: 0.3, fill: true },
-                    { label: 'קלוריות', data: calories, borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', yAxisID: 'yCalories', tension: 0.3, fill: true }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    yWeight: { type: 'linear', position: 'left', title: { display: true, text: 'ק"ג' } },
-                    yCalories: { type: 'linear', position: 'right', title: { display: true, text: 'קק"ל' }, grid: { drawOnChartArea: false } }
-                }
-            }
-        });
-    }
-
-    async function loadHistory() {
-        try {
-            const goalFilter = document.getElementById('filterGoal').value;
-            const response = await fetch(`/api/history?goal=${goalFilter}`);
-            const rows = await response.json();
-            currentHistoryData = rows;
-            
-            const tbody = document.getElementById('historyTable');
-            tbody.innerHTML = '';
-            rows.forEach(r => {
-                tbody.innerHTML += `<tr>
-                    <td>${r.weight} ק"ג</td>
-                    <td>${r.body_fat ? r.body_fat + '%' : '-'}</td>
-                    <td>${r.calories}</td>
-                    <td>${r.protein}ג'</td>
-                    <td><button class="delete-btn" onclick="deleteItem(${r.id})">✖</button></td>
-                </tr>`;
+        function exportToCSV() {
+            if (!currentHistoryData.length) return alert('אין נתונים לייצוא');
+            let csvContent = "\uFEFFמזהה,משקל (ק\"ג),גובה (ס\"מ),אחוז שומן (%),יעד,קלוריות,חלבון (גרם),תאריך\n";
+            currentHistoryData.forEach(r => {
+                csvContent += `${r.id},${r.weight},${r.height},${r.body_fat || ''},${r.goal},${r.calories},${r.protein},${r.created_at || ''}\n`;
             });
-
-            renderChart(rows);
-        } catch (e) {
-            console.error("שגיאה בטעינת היסטוריה:", e);
-        }
-    }
-
-    async function deleteItem(id) {
-        await fetch(`/api/history/${id}`, { method: 'DELETE' });
-        loadHistory();
-    }
-
-    async function calculate() {
-        const weight = document.getElementById('weight').value;
-        const height = document.getElementById('height').value;
-        const waist = document.getElementById('waist').value;
-        const neck = document.getElementById('neck').value;
-        const goal = document.getElementById('goal').value;
-
-        const payload = { weight: Number(weight), height: Number(height), goal: goal };
-        if (waist) payload.waist = Number(waist);
-        if (neck) payload.neck = Number(neck);
-
-        const response = await fetch('/api/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        if (!response.ok) return alert(`שגיאה: ${data.error}`);
-
-        lastCalcData = data;
-
-        if (data.bodyFatPercentage) {
-            document.getElementById('bodyFatRes').innerText = data.bodyFatPercentage;
-            document.getElementById('fatBox').style.display = 'block';
-        } else {
-            document.getElementById('fatBox').style.display = 'none';
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `history_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
         }
 
-        document.getElementById('caloriesRes').innerText = data.recommendedCalories;
-        document.getElementById('proteinRes').innerText = `${data.dailyProteinGrams} גרם`;
-        document.getElementById('carbsRes').innerText = `${data.dailyCarbGrams} גרם`;
-        document.getElementById('fatsRes').innerText = `${data.dailyFatGrams} גרם`;
-
-        targetCalories = data.recommendedCalories;
-        targetProtein = data.dailyProteinGrams;
-        document.getElementById('trackerCalsTarget').innerText = targetCalories;
-        document.getElementById('trackerProteinTarget').innerText = targetProtein;
         renderFoodList();
-
-        const proteinPerMeal = Math.round(data.dailyProteinGrams / 4);
-        document.getElementById('mealSuggestion').innerText = `💡 מומלץ לחלק ל-4 ארוחות ביום: כ-${proteinPerMeal} גרם חלבון בכל ארוחה.`;
-        document.getElementById('resultsBox').style.display = 'block';
-    }
-
-    // פונקציית בניית תפריט תזונה מותאם אישית
-    async function generateMenu() {
-        if (!lastCalcData) {
-            alert('אנא בצע חישוב במחשבון התזונה תחילה');
-            return;
-        }
-
-        const btn = document.getElementById('btnGenerateMenu');
-        const box = document.getElementById('personalizedMenuBox');
-        const weight = document.getElementById('weight').value;
-        const goal = document.getElementById('goal').value;
-        const dislikedFoods = document.getElementById('dislikedFoods').value;
-
-        btn.disabled = true;
-        btn.innerText = 'מפיק תפריט מותאם אישית... ⏳';
-        box.style.display = 'block';
-        box.innerText = 'מחשב ומפיק עבורך תפריט יומי עשיר ומפורט לפי היעדים וההעדפות...';
-
-        try {
-            const res = await fetch('/api/generate-menu', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    weight: weight,
-                    goal: goal,
-                    calories: lastCalcData.recommendedCalories,
-                    protein: lastCalcData.dailyProteinGrams,
-                    dislikedFoods: dislikedFoods
-                })
-            });
-
-            const data = await res.json();
-            if (res.ok) {
-                box.innerText = data.menu;
-            } else {
-                box.innerText = 'שגיאה: ' + (data.error || 'נסה שוב מאוחר יותר');
-            }
-        } catch (e) {
-            box.innerText = 'שגיאה בתקשורת מול השרת.';
-        } finally {
-            btn.disabled = false;
-            btn.innerText = '🥗 תפריט תזונה מותאם אישית';
-        }
-    }
-
-    function calculate1RM() {
-        const weight = parseFloat(document.getElementById('rmWeight').value);
-        const reps = parseInt(document.getElementById('rmReps').value);
-        if (!weight || !reps || weight <= 0 || reps <= 0) return alert('אנא הזן נתונים תקינים');
-
-        const oneRM = reps === 1 ? weight : Math.round(weight * (1 + reps / 30));
-        const resultDiv = document.getElementById('rmResult');
-        resultDiv.style.display = 'block';
-        
-        resultDiv.innerHTML = `
-            <div><strong>1RM משוער: <span style="color: var(--primary);">${oneRM} ק"ג</span> 🔥</strong></div>
-            <div style="font-size:0.85rem; margin-top:8px;">
-                90% (3-5 חזרות): <strong>${Math.round(oneRM * 0.9)} ק"ג</strong><br>
-                80% (8-10 חזרות): <strong>${Math.round(oneRM * 0.8)} ק"ג</strong><br>
-                70% (12-15 חזרות): <strong>${Math.round(oneRM * 0.7)} ק"ג</strong>
-            </div>
-        `;
-    }
-
-    function calculateWater() {
-        const weight = parseFloat(document.getElementById('waterWeight').value);
-        const workoutMins = parseFloat(document.getElementById('workoutMinutes').value) || 0;
-        if (!weight || weight <= 0) return alert('אנא הזן משקל תקין');
-
-        const totalLiters = ((weight * 0.035) + ((workoutMins / 30) * 0.35)).toFixed(1);
-        const totalGlasses = Math.round(totalLiters * 1000 / 250);
-
-        const resultDiv = document.getElementById('waterResult');
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `
-            <div><strong>צריכה מומלצת: <span style="color: var(--water);">${totalLiters} ליטר</span> 💧</strong></div>
-            <div style="font-size:0.85rem; margin-top:4px;">כ-<strong>${totalGlasses} כוסות מים</strong> ביום.</div>
-        `;
-    }
-
-    function generateWorkoutPlan() {
-        const goal = document.getElementById('workoutGoal').value;
-        const days = document.getElementById('workoutDays').value;
-        const equip = document.getElementById('workoutEquip').value;
-
-        const resultDiv = document.getElementById('workoutResult');
-        resultDiv.style.display = 'block';
-
-        let repsText = "8-12 חזרות (מנוחה 60-90 שניות)";
-        if (goal === 'strength') repsText = "4-6 חזרות (מנוחה 2-3 דקות)";
-        if (goal === 'fat_loss') repsText = "12-15 חזרות (מנוחה 45-60 שניות)";
-
-        let htmlContent = `<h3 style="margin-top:0; color:var(--primary);">📋 תוכנית האימונים המומלצת שלך</h3>`;
-        htmlContent += `<p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:15px;">טווח חזרות מומלץ: <strong>${repsText}</strong></p>`;
-
-        if (days === "3") {
-            htmlContent += `
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
-                        <strong style="color:var(--primary);">אימון FBW — אימון גוף מלא (שלוש פעמים בשבוע)</strong>
-                        <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
-                            ${equip === 'gym' ? `
-                                <li>סקוואט עם מוט / לחיצת רגליים: 3 סטים</li>
-                                <li>לחיצת חזה כנגד מוט / משקולות: 3 סטים</li>
-                                <li>פולי עליון / מתח: 3 סטים</li>
-                                <li>לחיצת כתפיים עם משקולות: 3 סטים</li>
-                                <li>כפילת מרפקים לביספס + פשיטת מרפקים: 2 סטים כל אחד</li>
-                            ` : `
-                                <li>סקוואט כנגד משקל גוף / משקולות: 4 סטים</li>
-                                <li>שכיבות סמיכה / לחיצה: 4 סטים</li>
-                                <li>חתירה עם רצועות / משקולות יד: 4 סטים</li>
-                                <li>לחיצת כתפיים בעמידה: 3 סטים</li>
-                                <li>פלאנק לבטן: 3 סטים (45 שניות)</li>
-                            `}
-                        </ul>
-                    </div>
-                </div>
-            `;
-        } else if (days === "4") {
-            htmlContent += `
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
-                        <strong style="color:var(--primary);">אימון A — פלג גוף עליון (Upper Body)</strong>
-                        <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
-                            <li>לחיצת חזה בשכיבה: 4 סטים</li>
-                            <li>חתירה בהטיית גו / פולי תחתון: 4 סטים</li>
-                            <li>לחיצת כתפיים: 3 סטים</li>
-                            <li>הרחקת זרועות לצדדים: 3 סטים</li>
-                            <li>סופר-סט זרועות (יד קדמית + יד אחורית): 3 סטים</li>
-                        </ul>
-                    </div>
-                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
-                        <strong style="color:var(--success);">אימון B — פלג גוף תחתון + בטן (Lower Body)</strong>
-                        <ul style="margin:8px 0 0 0; padding-right:20px; font-size:0.9rem;">
-                            <li>סקוואט חופשי / מכרעים: 4 סטים</li>
-                            <li>דדליפט רומני (RDL): 3 סטים</li>
-                            <li>מכשיר פשיטת ברכיים: 3 סטים</li>
-                            <li>תאומים בעמידה: 4 סטים</li>
-                            <li>הרמת רגליים / בטן: 3 סטים</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-        } else {
-            htmlContent += `
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
-                        <strong style="color:var(--primary);">יום 1: Push (חזה, כתפיים, יד אחורית)</strong>
-                        <p style="margin:4px 0 0 0; font-size:0.85rem;">לחיצת חזה (4 סטים), לחיצה בשיפוע חיובי (3 סטים), לחיצת כתפיים (3 סטים), הרחקת זרועות (3 סטים), פשיטת מרפקים לטריספס (3 סטים).</p>
-                    </div>
-                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
-                        <strong style="color:var(--water);">יום 2: Pull (גב, כתף אחורית, יד קדמית)</strong>
-                        <p style="margin:4px 0 0 0; font-size:0.85rem;">מתח / פולי עליון (4 סטים), חתירה במוט (3 סטים), פול-אובר (3 סטים), פרפר הפוך לכתף אחורית (3 סטים), כפילת מרפקים לביספס (4 סטים).</p>
-                    </div>
-                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
-                        <strong style="color:var(--success);">יום 3: Legs (רגליים ובטן)</strong>
-                        <p style="margin:4px 0 0 0; font-size:0.85rem;">סקוואט (4 סטים), מכרעים (3 סטים), פשיטת ברכיים (3 סטים), כפילת ברכיים (3 סטים), תאומים + בטן (4 סטים).</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        resultDiv.innerHTML = htmlContent;
-    }
-
-    function exportToCSV() {
-        if (!currentHistoryData.length) return alert('אין נתונים לייצוא');
-        let csvContent = "\uFEFFמזהה,משקל (ק\"ג),גובה (ס\"מ),אחוז שומן (%),יעד,קלוריות,חלבון (גרם),תאריך\n";
-        currentHistoryData.forEach(r => {
-            csvContent += `${r.id},${r.weight},${r.height},${r.body_fat || ''},${r.goal},${r.calories},${r.protein},${r.created_at || ''}\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `history_${new Date().toISOString().slice(0, 10)}.csv`;
-        a.click();
-    }
-
-    renderFoodList();
-</script>
+    </script>
 
 </body>
 </html>
