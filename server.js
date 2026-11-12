@@ -10,6 +10,8 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// llama-3.3-70b-versatile was retired by Groq on 2026-08-16
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
 
 app.set('trust proxy', 1);
 
@@ -125,7 +127,8 @@ app.post('/api/ai-chat', async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: GROQ_MODEL,
+                reasoning_effort: 'low',
                 messages: [
                     {
                         role: 'system',
@@ -136,7 +139,7 @@ app.post('/api/ai-chat', async (req, res) => {
                         content: message
                     }
                 ],
-                max_tokens: 500
+                max_tokens: 1500
             })
         });
 
@@ -220,7 +223,8 @@ app.post('/api/generate-menu', async (req, res) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: GROQ_MODEL,
+                reasoning_effort: 'low',
                 messages: [
                     {
                         role: 'system',
@@ -231,7 +235,7 @@ app.post('/api/generate-menu', async (req, res) => {
                         content: prompt
                     }
                 ],
-                max_tokens: 800
+                max_tokens: 2500
             })
         });
 
