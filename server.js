@@ -6,14 +6,22 @@ const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1);
 
+// Session secret comes from the environment (set SESSION_SECRET on Render).
+// Without it, a random secret is generated per run, so sessions reset on restart.
+const sessionSecret = process.env.SESSION_SECRET || (() => {
+    console.warn('SESSION_SECRET is not set - using a random secret (sessions will reset on restart)');
+    return crypto.randomBytes(32).toString('hex');
+})();
+
 app.use(session({
-    secret: 'fitness_app_secret_key_12345',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
